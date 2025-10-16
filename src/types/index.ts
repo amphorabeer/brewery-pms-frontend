@@ -16,30 +16,7 @@ export type BatchStatus =
   | 'FINISHED'
   | 'CANCELLED';
 
-export interface Batch {
-  id: string;
-  batchNumber: string;
-  status: BatchStatus;
-  brewDate: string;
-  expectedVolume: number;
-  actualVolume?: number;
-  og?: number;
-  fg?: number;
-  abv?: number;
-  notes?: string;
-  recipe: {
-    id: string;
-    name: string;
-    style: string;
-  };
-  location: {
-    id: string;
-    name: string;
-  };
-  fermentationLogs?: FermentationLog[];
-  createdAt: string;
-  updatedAt: string;
-}
+
 
 export interface Recipe {
   id: string;
