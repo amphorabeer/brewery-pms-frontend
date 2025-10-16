@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,11 @@ import Link from 'next/link';
 import { useIngredient } from '@/hooks/useIngredients';
 import { Loader2 } from 'lucide-react';
 
-export default function EditIngredientPage({ params }: { params: { id: string } }) {
+export default function EditIngredientPage({ 
+  params 
+}: { 
+  params: { id: string } 
+}) {
   const router = useRouter();
   const { ingredient, isLoading, updateIngredient } = useIngredient(params.id);
   const [loading, setLoading] = useState(false);
