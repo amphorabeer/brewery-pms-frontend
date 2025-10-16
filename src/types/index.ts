@@ -78,3 +78,30 @@ export interface Location {
   address?: string;
   organizationId: string;
 }
+export interface Batch {
+  id: string;
+  batchNumber: string;
+  status: BatchStatus;
+  brewDate: string;
+  fermentationStartDate?: string;  // ← დაამატე
+  packagedDate?: string;            // ← დაამატე
+  finishedDate?: string;            // ← დაამატე
+  expectedVolume: number;
+  actualVolume?: number;
+  og?: number;
+  fg?: number;
+  abv?: number;
+  notes?: string;
+  recipe: {
+    id: string;
+    name: string;
+    style: string;
+  };
+  location: {
+    id: string;
+    name: string;
+  };
+  fermentationLogs?: FermentationLog[];
+  createdAt: string;
+  updatedAt: string;
+}
