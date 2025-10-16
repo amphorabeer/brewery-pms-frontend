@@ -27,9 +27,11 @@ export interface Recipe {
   ibu: number;
   og: number;
   fg: number;
-  mashTemp?: number;      // ← დაამატე
-  mashDuration?: number;  // ← დაამატე (თუ გჭირდება)
-  boilDuration?: number;  // ← დაამატე (თუ გჭირდება)
+  mashTemp?: number;
+  mashTime?: number;      // ← არა mashDuration!
+  boilTime?: number;      // ← არა boilDuration!
+  fermentTemp?: number;   // ← დაამატე
+  fermentDays?: number;   // ← დაამატე
   notes?: string;
 }
 
