@@ -5,18 +5,73 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useIngredients } from '@/hooks/useIngredients';
 import Link from 'next/link';
+
+interface SelectedIngredient {
+  ingredientId: string;
+  ingredientName: string;
+  quantity: number;
+  unit: string;
+  timing?: string;
+  notes?: string;
+}
 
 export default function NewRecipePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { data: ingredients } = useIngredients();
+  
+  // Ingredients state
+  const [selectedIngredients, setSelectedIngredients] = useState<SelectedIngredient[]>([]);
+  const [currentIngredient, setCurrentIngredient] = useState({
+    ingredientId: '',
+    quantity: '',
+    unit: 'kg',
+    timing: '',
+    notes: '',
+  });
+
+  const handleAddIngredient = () => {
+    if (!currentIngredient.ingredientId || !currentIngredient.quantity) {
+      alert('Please select ingredient and enter quantity');
+      return;
+    }
+
+    const ingredient = ingredients?.find((i: any) => i.id === currentIngredient.ingredientId);
+    if (!ingredient) return;
+
+    const newIngredient: SelectedIngredient = {
+      ingredientId: currentIngredient.ingredientId,
+      ingredientName: ingredient.name,
+      quantity: parseFloat(currentIngredient.quantity),
+      unit: currentIngredient.unit,
+      timing: currentIngredient.timing || undefined,
+      notes: currentIngredient.notes || undefined,
+    };
+
+    setSelectedIngredients([...selectedIngredients, newIngredient]);
+    
+    // Reset form
+    setCurrentIngredient({
+      ingredientId: '',
+      quantity: '',
+      unit: 'kg',
+      timing: '',
+      notes: '',
+    });
+  };
+
+  const handleRemoveIngredient = (index: number) => {
+    setSelectedIngredients(selectedIngredients.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const data = {
+    const recipeData = {
       name: formData.get('name'),
       style: formData.get('style'),
       batchSize: parseFloat(formData.get('batchSize') as string),
@@ -24,9 +79,16 @@ export default function NewRecipePage() {
       ibu: parseFloat(formData.get('ibu') as string) || undefined,
       og: parseFloat(formData.get('og') as string) || undefined,
       fg: parseFloat(formData.get('fg') as string) || undefined,
+      mashTemp: parseFloat(formData.get('mashTemp') as string) || undefined,
+      mashTime: parseInt(formData.get('mashTime') as string) || undefined,
+      boilTime: parseInt(formData.get('boilTime') as string) || undefined,
+      fermentTemp: parseFloat(formData.get('fermentTemp') as string) || undefined,
+      fermentDays: parseInt(formData.get('fermentDays') as string) || undefined,
+      notes: formData.get('notes') || undefined,
     };
 
     try {
+      // 1. Create Recipe
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/recipes`,
         {
@@ -35,16 +97,42 @@ export default function NewRecipePage() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${localStorage.getItem('access_token')}`,
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(recipeData),
         }
       );
 
-      if (response.ok) {
-        router.push('/recipes');
-      } else {
-        alert('Failed to create recipe');
+      if (!response.ok) {
+        throw new Error('Failed to create recipe');
       }
+
+      const recipe = await response.json();
+
+      // 2. Add Ingredients to Recipe
+      if (selectedIngredients.length > 0) {
+        for (const ingredient of selectedIngredients) {
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/recipes/${recipe.id}/ingredients`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+              },
+              body: JSON.stringify({
+                ingredientId: ingredient.ingredientId,
+                quantity: ingredient.quantity,
+                unit: ingredient.unit,
+                timing: ingredient.timing,
+                notes: ingredient.notes,
+              }),
+            }
+          );
+        }
+      }
+
+      router.push('/recipes');
     } catch (error) {
+      console.error('Error creating recipe:', error);
       alert('Error creating recipe');
     } finally {
       setLoading(false);
@@ -53,19 +141,20 @@ export default function NewRecipePage() {
 
   return (
     <div className="p-8">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <Link href="/recipes">
           <Button variant="ghost" className="mb-4">
             ← Back to Recipes
           </Button>
         </Link>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Create New Recipe</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Recipe Name *
@@ -84,26 +173,16 @@ export default function NewRecipePage() {
                 <label className="block text-sm font-medium mb-1">
                   Batch Size (L) *
                 </label>
-                <Input
-                  name="batchSize"
-                  type="number"
-                  step="0.1"
-                  required
-                />
+                <Input name="batchSize" type="number" step="0.1" required />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    ABV (%)
-                  </label>
+                  <label className="block text-sm font-medium mb-1">ABV (%)</label>
                   <Input name="abv" type="number" step="0.1" />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    IBU
-                  </label>
+                  <label className="block text-sm font-medium mb-1">IBU</label>
                   <Input name="ibu" type="number" step="0.1" />
                 </div>
               </div>
@@ -115,7 +194,6 @@ export default function NewRecipePage() {
                   </label>
                   <Input name="og" type="number" step="0.001" placeholder="1.050" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Final Gravity (FG)
@@ -123,20 +201,224 @@ export default function NewRecipePage() {
                   <Input name="fg" type="number" step="0.001" placeholder="1.010" />
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="flex gap-2 pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Recipe'}
+          {/* Ingredients */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Ingredients</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Add Ingredient Form */}
+              <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Select Ingredient
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 border rounded-md"
+                      value={currentIngredient.ingredientId}
+                      onChange={(e) =>
+                        setCurrentIngredient({
+                          ...currentIngredient,
+                          ingredientId: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Choose ingredient...</option>
+                      {ingredients?.map((ing: any) => (
+                        <option key={ing.id} value={ing.id}>
+                          {ing.name} ({ing.type})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Quantity
+                      </label>
+                      <Input
+                        type="number"
+                        step="0.001"
+                        value={currentIngredient.quantity}
+                        onChange={(e) =>
+                          setCurrentIngredient({
+                            ...currentIngredient,
+                            quantity: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Unit</label>
+                      <select
+                        className="w-full px-3 py-2 border rounded-md"
+                        value={currentIngredient.unit}
+                        onChange={(e) =>
+                          setCurrentIngredient({
+                            ...currentIngredient,
+                            unit: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="L">L</option>
+                        <option value="ml">ml</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Timing (optional)
+                    </label>
+                    <Input
+                      placeholder="e.g. Mash, Boil 60min, Dry hop"
+                      value={currentIngredient.timing}
+                      onChange={(e) =>
+                        setCurrentIngredient({
+                          ...currentIngredient,
+                          timing: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Notes (optional)
+                    </label>
+                    <Input
+                      placeholder="Additional notes"
+                      value={currentIngredient.notes}
+                      onChange={(e) =>
+                        setCurrentIngredient({
+                          ...currentIngredient,
+                          notes: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  onClick={handleAddIngredient}
+                  variant="outline"
+                  className="w-full"
+                >
+                  + Add Ingredient
                 </Button>
-                <Link href="/recipes">
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </Link>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+
+              {/* Selected Ingredients List */}
+              {selectedIngredients.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-medium">Selected Ingredients:</h3>
+                  {selectedIngredients.map((ingredient, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-3 bg-white border rounded-lg"
+                    >
+                      <div className="flex-1">
+                        <p className="font-medium">{ingredient.ingredientName}</p>
+                        <p className="text-sm text-gray-600">
+                          {ingredient.quantity} {ingredient.unit}
+                          {ingredient.timing && ` • ${ingredient.timing}`}
+                        </p>
+                        {ingredient.notes && (
+                          <p className="text-sm text-gray-500">{ingredient.notes}</p>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveIngredient(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Brewing Parameters */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Brewing Parameters (Optional)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Mash Temp (°C)
+                  </label>
+                  <Input name="mashTemp" type="number" step="0.1" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Mash Time (min)
+                  </label>
+                  <Input name="mashTime" type="number" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Boil Time (min)
+                </label>
+                <Input name="boilTime" type="number" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Fermentation Temp (°C)
+                  </label>
+                  <Input name="fermentTemp" type="number" step="0.1" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Fermentation Days
+                  </label>
+                  <Input name="fermentDays" type="number" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Notes</label>
+                <textarea
+                  name="notes"
+                  className="w-full px-3 py-2 border rounded-md"
+                  rows={4}
+                  placeholder="Additional brewing notes..."
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Creating...' : 'Create Recipe'}
+            </Button>
+            <Link href="/recipes">
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );
