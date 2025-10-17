@@ -19,12 +19,12 @@ export default function NewTankPage() {
 
     const formData = new FormData(e.currentTarget);
     const tankData = {
-      name: formData.get('name'),
-      type: formData.get('type'),
+      name: formData.get('name') as string,
+      type: formData.get('type') as string,
       capacity: parseFloat(formData.get('capacity') as string),
-      status: formData.get('status'),
-      location: formData.get('location') || undefined,
-      notes: formData.get('notes') || undefined,
+      status: formData.get('status') as string,
+      location: (formData.get('location') as string) || undefined,
+      notes: (formData.get('notes') as string) || undefined,
     };
 
     const success = await createTank(tankData);
