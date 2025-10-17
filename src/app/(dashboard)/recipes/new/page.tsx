@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,18 @@ interface SelectedIngredient {
   notes?: string;
 }
 
+type GravityUnit = 'SG' | 'Plato';
+
 export default function NewRecipePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { ingredients } = useIngredients();  // ✅ ახალი
+  const { ingredients } = useIngredients();
+  
+  // Gravity and ABV state
+  const [gravityUnit, setGravityUnit] = useState<GravityUnit>('SG');
+  const [og, setOg] = useState('');
+  const [fg, setFg] = useState('');
+  const [calculatedAbv, setCalculatedAbv] = useState<number | null>(null);
   
   // Ingredients state
   const [selectedIngredients, setSelectedIngredients] = useState<SelectedIngredient[]>([]);
@@ -31,6 +39,39 @@ export default function NewRecipePage() {
     timing: '',
     notes: '',
   });
+
+  // Calculate ABV whenever OG, FG, or unit changes
+  useEffect(() => {
+    if (og && fg) {
+      const ogNum = parseFloat(og);
+      const fgNum = parseFloat(fg);
+      
+      if (ogNum && fgNum && ogNum > fgNum) {
+        let abv: number;
+        
+        if (gravityUnit === 'SG') {
+          // ABV from Specific Gravity
+          abv = (ogNum - fgNum) * 131.25;
+        } else {
+          // ABV from Plato
+          abv = (ogNum - fgNum) * 0.53;
+        }
+        
+        setCalculatedAbv(parseFloat(abv.toFixed(2)));
+      } else {
+        setCalculatedAbv(null);
+      }
+    } else {
+      setCalculatedAbv(null);
+    }
+  }, [og, fg, gravityUnit]);
+
+  // Convert gravity for submission (always save as SG)
+  const convertToSG = (value: number, unit: GravityUnit): number => {
+    if (unit === 'SG') return value;
+    // Plato to SG conversion
+    return 1 + (value / (258.6 - ((value / 258.2) * 227.1)));
+  };
 
   const handleAddIngredient = () => {
     if (!currentIngredient.ingredientId || !currentIngredient.quantity) {
@@ -71,14 +112,19 @@ export default function NewRecipePage() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    
+    // Convert gravity to SG if needed
+    const ogValue = og ? convertToSG(parseFloat(og), gravityUnit) : undefined;
+    const fgValue = fg ? convertToSG(parseFloat(fg), gravityUnit) : undefined;
+    
     const recipeData = {
       name: formData.get('name'),
       style: formData.get('style'),
       batchSize: parseFloat(formData.get('batchSize') as string),
-      abv: parseFloat(formData.get('abv') as string) || undefined,
+      abv: calculatedAbv || undefined,
       ibu: parseFloat(formData.get('ibu') as string) || undefined,
-      og: parseFloat(formData.get('og') as string) || undefined,
-      fg: parseFloat(formData.get('fg') as string) || undefined,
+      og: ogValue,
+      fg: fgValue,
       mashTemp: parseFloat(formData.get('mashTemp') as string) || undefined,
       mashTime: parseInt(formData.get('mashTime') as string) || undefined,
       boilTime: parseInt(formData.get('boilTime') as string) || undefined,
@@ -176,29 +222,87 @@ export default function NewRecipePage() {
                 <Input name="batchSize" type="number" step="0.1" required />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">ABV (%)</label>
-                  <Input name="abv" type="number" step="0.1" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">IBU</label>
-                  <Input name="ibu" type="number" step="0.1" />
+              {/* Gravity Unit Selector */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Gravity Unit
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      value="SG"
+                      checked={gravityUnit === 'SG'}
+                      onChange={(e) => setGravityUnit(e.target.value as GravityUnit)}
+                      className="mr-2"
+                    />
+                    Specific Gravity (SG)
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      value="Plato"
+                      checked={gravityUnit === 'Plato'}
+                      onChange={(e) => setGravityUnit(e.target.value as GravityUnit)}
+                      className="mr-2"
+                    />
+                    Plato (°P)
+                  </label>
                 </div>
               </div>
 
+              {/* Gravity Inputs */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Original Gravity (OG)
                   </label>
-                  <Input name="og" type="number" step="0.001" placeholder="1.050" />
+                  <Input
+                    type="number"
+                    step="0.001"
+                    placeholder={gravityUnit === 'SG' ? '1.050' : '12.4'}
+                    value={og}
+                    onChange={(e) => setOg(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {gravityUnit === 'SG' ? 'e.g. 1.050' : 'e.g. 12.4°P'}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Final Gravity (FG)
                   </label>
-                  <Input name="fg" type="number" step="0.001" placeholder="1.010" />
+                  <Input
+                    type="number"
+                    step="0.001"
+                    placeholder={gravityUnit === 'SG' ? '1.010' : '3.1'}
+                    value={fg}
+                    onChange={(e) => setFg(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {gravityUnit === 'SG' ? 'e.g. 1.010' : 'e.g. 3.1°P'}
+                  </p>
+                </div>
+              </div>
+
+              {/* ABV Display */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    ABV (%) - Calculated
+                  </label>
+                  <div className="px-3 py-2 bg-green-50 border border-green-200 rounded-md">
+                    <p className="text-lg font-bold text-green-700">
+                      {calculatedAbv !== null ? `${calculatedAbv}%` : '---'}
+                    </p>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Auto-calculated from OG and FG
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">IBU</label>
+                  <Input name="ibu" type="number" step="0.1" />
                 </div>
               </div>
             </CardContent>
