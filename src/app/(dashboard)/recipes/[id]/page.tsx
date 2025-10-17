@@ -89,6 +89,41 @@ export default function RecipeDetailPage() {
           </Card>
         </div>
 
+        {/* Ingredients Section - NEW */}
+        {recipe.ingredients && recipe.ingredients.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Ingredients</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recipe.ingredients.map((item: any) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{item.ingredient.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {item.ingredient.type}
+                        {item.timing && ` • ${item.timing}`}
+                      </p>
+                      {item.notes && (
+                        <p className="text-sm text-gray-500 mt-1">{item.notes}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">
+                        {item.quantity} {item.unit}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Gravity */}
         <Card className="mb-8">
           <CardHeader>
@@ -160,7 +195,7 @@ export default function RecipeDetailPage() {
 
         {/* Notes */}
         {recipe.notes && (
-          <Card>
+          <Card className="mb-8">
             <CardHeader>
               <CardTitle>Notes</CardTitle>
             </CardHeader>
