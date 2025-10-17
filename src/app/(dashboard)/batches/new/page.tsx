@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRecipes } from '@/hooks/useRecipes';
+import { useTanks } from '@/hooks/useTanks';
 import { useLocations } from '@/hooks/useLocations';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import api from '@/lib/api';
 
 export default function NewBatchPage() {
   const router = useRouter();
+  const { tanks } = useTanks();
   const { data: recipes, isLoading: recipesLoading } = useRecipes();
   const { data: locations, isLoading: locationsLoading } = useLocations();
   
@@ -28,6 +30,7 @@ export default function NewBatchPage() {
   const [formData, setFormData] = useState({
     recipeId: '',
     locationId: '',
+    tankId: '',  // ← დაამატე
     brewDate: new Date().toISOString().split('T')[0],
     expectedVolume: '',
     notes: '',
@@ -57,6 +60,7 @@ export default function NewBatchPage() {
       const response = await api.post('/batches', {
         recipeId: formData.recipeId,
         locationId: formData.locationId,
+        tankId: formData.tankId || undefined,  // ← დაამატე
         brewDate: formData.brewDate,
         expectedVolume: parseFloat(formData.expectedVolume),
         notes: formData.notes || undefined,
@@ -180,7 +184,33 @@ export default function NewBatchPage() {
                   Where will this batch be brewed?
                 </p>
               </div>
-
+{/* Tank Selection */}
+<div className="space-y-2">
+                <Label htmlFor="tank">Tank (Optional)</Label>
+                <Select
+                  value={formData.tankId}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, tankId: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a tank" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tanks
+                      ?.filter((tank) => tank.status === 'EMPTY')
+                      .map((tank) => (
+                        <SelectItem key={tank.id} value={tank.id}>
+                          {tank.name} - {tank.type} ({tank.capacity}L)
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500">
+                  Assign this batch to a fermentation tank
+                </p>
+              </div>
+              
               {/* Brew Date */}
               <div className="space-y-2">
                 <Label htmlFor="brewDate">Brew Date *</Label>
