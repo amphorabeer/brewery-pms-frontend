@@ -1,14 +1,12 @@
 'use client';
 
-'use client';
-
 import { useRecipe } from '@/hooks/useRecipes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Download } from 'lucide-react';  // ← დაამატე
-import { generateBrewSheetPDF } from '@/lib/pdfGenerator';  // ← დაამატე
+import { Download } from 'lucide-react';
+import { generateBrewSheetPDF } from '@/lib/pdfGenerator';
 
 export default function RecipeDetailPage() {
   const params = useParams();
@@ -226,3 +224,7 @@ export default function RecipeDetailPage() {
             Delete Recipe
           </Button>
         </div>
+      </div>
+    </div>
+  );
+}
