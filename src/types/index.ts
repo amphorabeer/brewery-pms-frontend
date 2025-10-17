@@ -16,25 +16,6 @@ export type BatchStatus =
   | 'FINISHED'
   | 'CANCELLED';
 
-
-
-export interface Recipe {
-  id: string;
-  name: string;
-  style: string;
-  batchSize: number;
-  abv: number;
-  ibu: number;
-  og: number;
-  fg: number;
-  mashTemp?: number;
-  mashTime?: number;      // ← არა mashDuration!
-  boilTime?: number;      // ← არა boilDuration!
-  fermentTemp?: number;   // ← დაამატე
-  fermentDays?: number;   // ← დაამატე
-  notes?: string;
-}
-
 export interface FermentationLog {
   id: string;
   measuredAt: string;
@@ -54,20 +35,22 @@ export interface Statistics {
   averageAbv: string;
   statusBreakdown: Record<string, number>;
 }
+
 export interface Location {
   id: string;
   name: string;
   address?: string;
   organizationId: string;
 }
+
 export interface Batch {
   id: string;
   batchNumber: string;
   status: BatchStatus;
   brewDate: string;
-  fermentationStartDate?: string;  // ← დაამატე
-  packagedDate?: string;            // ← დაამატე
-  finishedDate?: string;            // ← დაამატე
+  fermentationStartDate?: string;
+  packagedDate?: string;
+  finishedDate?: string;
   expectedVolume: number;
   actualVolume?: number;
   og?: number;
@@ -87,6 +70,7 @@ export interface Batch {
   createdAt: string;
   updatedAt: string;
 }
+
 export interface Ingredient {
   id: string;
   name: string;
