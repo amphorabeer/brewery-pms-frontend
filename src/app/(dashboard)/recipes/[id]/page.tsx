@@ -1,10 +1,14 @@
 'use client';
 
+'use client';
+
 import { useRecipe } from '@/hooks/useRecipes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Download } from 'lucide-react';  // ← დაამატე
+import { generateBrewSheetPDF } from '@/lib/pdfGenerator';  // ← დაამატე
 
 export default function RecipeDetailPage() {
   const params = useParams();
@@ -207,6 +211,14 @@ export default function RecipeDetailPage() {
 
         {/* Actions */}
         <div className="mt-8 flex gap-4">
+          <Button 
+            onClick={() => generateBrewSheetPDF(recipe)}
+            variant="default"
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download Brew Sheet
+          </Button>
           <Link href={`/recipes/${recipe.id}/edit`}>
             <Button variant="outline">Edit Recipe</Button>
           </Link>
@@ -214,7 +226,3 @@ export default function RecipeDetailPage() {
             Delete Recipe
           </Button>
         </div>
-      </div>
-    </div>
-  );
-}
