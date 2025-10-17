@@ -20,7 +20,7 @@ interface SelectedIngredient {
 export default function NewRecipePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { data: ingredients } = useIngredients();
+  const { ingredients } = useIngredients();  // ✅ ახალი
   
   // Ingredients state
   const [selectedIngredients, setSelectedIngredients] = useState<SelectedIngredient[]>([]);
