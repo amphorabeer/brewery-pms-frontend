@@ -87,3 +87,37 @@ export interface Batch {
   createdAt: string;
   updatedAt: string;
 }
+export interface Ingredient {
+  id: string;
+  name: string;
+  type: string;
+  unit: string;
+  stock?: number;
+}
+
+export interface RecipeIngredient {
+  id: string;
+  quantity: number;
+  unit: string;
+  timing?: string;
+  notes?: string;
+  ingredient: Ingredient;
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  style: string;
+  batchSize: number;
+  abv?: number;
+  ibu?: number;
+  og?: number;
+  fg?: number;
+  mashTemp?: number;
+  mashTime?: number;
+  boilTime?: number;
+  fermentTemp?: number;
+  fermentDays?: number;
+  notes?: string;
+  ingredients?: RecipeIngredient[];
+}
