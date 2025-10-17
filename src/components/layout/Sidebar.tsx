@@ -5,12 +5,12 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
-cconst navItems = [
+const navItems = [
   { href: '/dashboard', label: '📊 Dashboard', icon: '📊' },
   { href: '/batches', label: '🍺 Batches', icon: '🍺' },
   { href: '/recipes', label: '📖 Recipes', icon: '📖' },
   { href: '/ingredients', label: '🌾 Ingredients', icon: '🌾' },
-  { href: '/tanks', label: '🏭 Tanks', icon: '🏭' },  // ← დაამატე
+  { href: '/tanks', label: '🏭 Tanks', icon: '🏭' },
   { href: '/locations', label: '📍 Locations', icon: '📍' },
   { href: '/analytics', label: '📈 Analytics', icon: '📈' },
 ];
