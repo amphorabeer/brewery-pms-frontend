@@ -1,233 +1,219 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRecipe } from '@/hooks/useRecipes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 
-export default function EditIngredientPage() {
-  const router = useRouter();
+export default function RecipeDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [ingredient, setIngredient] = useState<any>(null);
+  const { data: recipe, isLoading, error } = useRecipe(id);
 
-  useEffect(() => {
-    const fetchIngredient = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/ingredients/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-            },
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setIngredient(data);
-        } else {
-          alert('Failed to load ingredient');
-          router.push('/ingredients');
-        }
-      } catch (error) {
-        console.error('Error loading ingredient:', error);
-        alert('Error loading ingredient');
-        router.push('/ingredients');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchIngredient();
-  }, [id, router]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSubmitting(true);
-
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      name: formData.get('name'),
-      type: formData.get('type'),
-      supplier: formData.get('supplier') || undefined,
-      costPerUnit: formData.get('costPerUnit')
-        ? parseFloat(formData.get('costPerUnit') as string)
-        : undefined,
-      unit: formData.get('unit'),
-      stock: formData.get('stock')
-        ? parseFloat(formData.get('stock') as string)
-        : undefined,
-      notes: formData.get('notes') || undefined,
-    };
-
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/ingredients/${id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-          },
-          body: JSON.stringify(data),
-        }
-      );
-
-      if (response.ok) {
-        router.push('/ingredients');
-      } else {
-        alert('Failed to update ingredient');
-      }
-    } catch (error) {
-      console.error('Error updating ingredient:', error);
-      alert('Error updating ingredient');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          <p>Loading recipe...</p>
+        </div>
       </div>
     );
   }
 
-  if (!ingredient) {
-    return null;
+  if (error || !recipe) {
+    return (
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-red-600">Error loading recipe</p>
+          <Link href="/recipes">
+            <Button variant="outline" className="mt-4">
+              ← Back to Recipes
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="p-8">
-      <div className="max-w-2xl mx-auto">
-        <Link href="/ingredients">
-          <Button variant="ghost" className="mb-4">
-            ← Back to Ingredients
-          </Button>
-        </Link>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <Link href="/recipes">
+            <Button variant="ghost" className="mb-2">
+              ← Back to Recipes
+            </Button>
+          </Link>
+          <h1 className="text-3xl font-bold">{recipe.name}</h1>
+          <p className="text-gray-600 mt-1 text-lg">{recipe.style}</p>
+        </div>
 
-        <Card>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-gray-600">Batch Size</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{recipe.batchSize}L</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-gray-600">ABV</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-amber-600">{recipe.abv}%</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-gray-600">IBU</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{recipe.ibu}</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-gray-600">Color</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">-</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Ingredients Section */}
+        {recipe.ingredients && recipe.ingredients.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Ingredients</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recipe.ingredients.map((item: any) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{item.ingredient.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {item.ingredient.type}
+                        {item.timing && ` • ${item.timing}`}
+                      </p>
+                      {item.notes && (
+                        <p className="text-sm text-gray-500 mt-1">{item.notes}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">
+                        {item.quantity} {item.unit}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Gravity */}
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Edit Ingredient</CardTitle>
+            <CardTitle>Gravity Readings</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Ingredient Name *
-                </label>
-                <Input
-                  name="name"
-                  defaultValue={ingredient.name}
-                  required
-                />
+                <p className="text-sm text-gray-600 mb-1">Original Gravity (OG)</p>
+                <p className="text-3xl font-bold">{recipe.og}</p>
               </div>
-
               <div>
-                <label className="block text-sm font-medium mb-1">Type *</label>
-                <select
-                  name="type"
-                  defaultValue={ingredient.type}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                >
-                  <option value="">Select type...</option>
-                  <option value="Grain">Grain</option>
-                  <option value="Hop">Hop</option>
-                  <option value="Yeast">Yeast</option>
-                  <option value="Adjunct">Adjunct</option>
-                  <option value="Water">Water</option>
-                  <option value="Other">Other</option>
-                </select>
+                <p className="text-sm text-gray-600 mb-1">Final Gravity (FG)</p>
+                <p className="text-3xl font-bold">{recipe.fg}</p>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Supplier
-                </label>
-                <Input
-                  name="supplier"
-                  defaultValue={ingredient.supplier || ''}
-                  placeholder="Optional"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Cost per Unit
-                  </label>
-                  <Input
-                    name="costPerUnit"
-                    type="number"
-                    step="0.01"
-                    defaultValue={ingredient.costPerUnit || ''}
-                    placeholder="0.00"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Unit *</label>
-                  <select
-                    name="unit"
-                    defaultValue={ingredient.unit}
-                    className="w-full px-3 py-2 border rounded-md"
-                    required
-                  >
-                    <option value="kg">kg</option>
-                    <option value="g">g</option>
-                    <option value="L">L</option>
-                    <option value="ml">ml</option>
-                    <option value="unit">unit</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Current Stock
-                </label>
-                <Input
-                  name="stock"
-                  type="number"
-                  step="0.001"
-                  defaultValue={ingredient.stock || ''}
-                  placeholder="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Notes</label>
-                <textarea
-                  name="notes"
-                  defaultValue={ingredient.notes || ''}
-                  className="w-full px-3 py-2 border rounded-md"
-                  rows={4}
-                  placeholder="Additional notes about this ingredient..."
-                />
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? 'Saving...' : 'Save Changes'}
-                </Button>
-                <Link href="/ingredients">
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </Link>
-              </div>
-            </form>
+            </div>
           </CardContent>
         </Card>
+
+        {/* Brewing Parameters */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Mash</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Temperature</span>
+                <span className="font-medium">{recipe.mashTemp}°C</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Duration</span>
+                <span className="font-medium">{recipe.mashTime} min</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Boil</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Duration</span>
+                <span className="font-medium">{recipe.boilTime} min</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Fermentation */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Fermentation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Temperature</p>
+                <p className="text-xl font-bold">{recipe.fermentTemp}°C</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Duration</p>
+                <p className="text-xl font-bold">{recipe.fermentDays} days</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Notes */}
+        {recipe.notes && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-700 whitespace-pre-wrap">{recipe.notes}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Actions */}
+        <div className="mt-8 flex gap-4">
+          <Link href={`/recipes/${recipe.id}/edit`}>
+            <Button variant="outline">Edit Recipe</Button>
+          </Link>
+          <Button variant="outline" className="text-red-600 hover:text-red-700">
+            Delete Recipe
+          </Button>
+        </div>
       </div>
     </div>
   );
