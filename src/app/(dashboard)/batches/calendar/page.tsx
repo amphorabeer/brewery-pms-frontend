@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 export default function BatchCalendarPage() {
   const router = useRouter();
-  const { batches, loading, error } = useBatches();
+  const { data: batches = [], isLoading: loading, error } = useBatches();
 
   if (loading) {
     return (
