@@ -105,3 +105,28 @@ export interface Recipe {
   notes?: string;
   ingredients?: RecipeIngredient[];
 }
+
+export type TankType = 
+  | 'FERMENTER'
+  | 'BRIGHT_TANK'
+  | 'CONDITIONING_TANK'
+  | 'MATURATION_TANK';
+
+export type TankStatus =
+  | 'EMPTY'
+  | 'IN_USE'
+  | 'CLEANING'
+  | 'MAINTENANCE';
+
+export interface Tank {
+  id: string;
+  name: string;
+  type: TankType;
+  capacity: number;
+  status: TankStatus;
+  locationId?: string;
+  location?: Location;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
