@@ -20,7 +20,6 @@ import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { FermentationLog } from '@/types';
 
 export default function BatchDetailPage() {
   const params = useParams();
