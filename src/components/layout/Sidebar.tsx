@@ -21,7 +21,6 @@ const navigation = [
   { name: 'Batch Calendar', href: '/batches/calendar', icon: Calendar },
   { name: 'Tanks', href: '/tanks', icon: Layers },
   { name: 'Ingredients', href: '/ingredients', icon: Beaker },
-  { name: 'Locations', href: '/locations', icon: MapPin },
 ];
 
 const secondaryNavigation = [
