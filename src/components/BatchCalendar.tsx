@@ -23,24 +23,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-interface Batch {
-  id: string;
-  batchNumber: string;
-  recipeId: string;
-  recipe?: {
-    name: string;
-  };
-  tankId?: string;
-  tank?: {
-    name: string;
-  };
-  status: 'PLANNED' | 'BREWING' | 'FERMENTING' | 'CONDITIONING' | 'PACKAGING' | 'FINISHED' | 'CANCELLED';
-  brewDate: string;
-  estimatedCompletionDate?: string;
-  actualCompletionDate?: string;
-  volumeProduced?: number;
-}
-
 interface BatchEvent {
   id: string;
   title: string;
@@ -89,10 +71,10 @@ export default function BatchCalendar({
       .filter(batch => selectedStatus === 'all' || batch.status === selectedStatus)
       .map(batch => {
         const startDate = new Date(batch.brewDate);
-        const endDate = batch.actualCompletionDate 
-          ? new Date(batch.actualCompletionDate)
-          : batch.estimatedCompletionDate
-          ? new Date(batch.estimatedCompletionDate)
+        const endDate = batch.finishedDate 
+          ? new Date(batch.finishedDate)
+          : batch.packagedDate
+          ? new Date(batch.packagedDate)
           : new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000);
 
         return {
@@ -124,8 +106,8 @@ export default function BatchCalendar({
   const EventComponent = ({ event }: { event: BatchEvent }) => (
     <div className="text-xs font-medium truncate">
       <div>{event.resource.batchNumber}</div>
-      {event.resource.tank && (
-        <div className="text-[10px] opacity-90">🏭 {event.resource.tank.name}</div>
+      {event.resource.location && (
+        <div className="text-[10px] opacity-90">📍 {event.resource.location.name}</div>
       )}
     </div>
   );
