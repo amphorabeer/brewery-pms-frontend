@@ -2,78 +2,111 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { 
+  LayoutDashboard, 
+  Flask, 
+  Droplet, 
+  MapPin, 
+  ShoppingCart,
+  Package,
+  Users,
+  Settings,
+  LogOut,
+  Beaker,
+  Layers,
+  Calendar
+} from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
 
-const navItems = [
-  { href: '/dashboard', label: '📊 Dashboard', icon: '📊' },
-  { href: '/batches', label: '🍺 Batches', icon: '🍺' },
-  { href: '/recipes', label: '📖 Recipes', icon: '📖' },
-  { href: '/ingredients', label: '🌾 Ingredients', icon: '🌾' },
-  { href: '/tanks', label: '🏭 Tanks', icon: '🏭' },
-  { href: '/locations', label: '📍 Locations', icon: '📍' },
-  { href: '/analytics', label: '📈 Analytics', icon: '📈' },
+const navigation = [
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Recipes', href: '/recipes', icon: Flask },
+  { name: 'Batches', href: '/batches', icon: Droplet },
+  { name: 'Batch Calendar', href: '/batches/calendar', icon: Calendar },
+  { name: 'Tanks', href: '/tanks', icon: Layers },
+  { name: 'Ingredients', href: '/ingredients', icon: Beaker },
+  { name: 'Locations', href: '/locations', icon: MapPin },
 ];
 
-export function Sidebar() {
+const secondaryNavigation = [
+  { name: 'Settings', href: '/settings', icon: Settings },
+];
+
+export default function Sidebar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
-      {/* Logo/Brand */}
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold">🍺 Brewery PMS</h1>
-        <p className="text-sm text-gray-600 mt-1">Production Management</p>
+    <div className="flex h-full w-64 flex-col bg-gray-900">
+      {/* Logo */}
+      <div className="flex h-16 items-center gap-2 px-6 border-b border-gray-800">
+        <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
+          <span className="text-white font-bold text-lg">🍺</span>
+        </div>
+        <span className="text-white font-bold text-lg">Brewery PMS</span>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
+        {navigation.map((item) => {
+          const isActive = pathname === item.href || 
+                          (item.href !== '/dashboard' && pathname?.startsWith(item.href));
+          
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`
+                flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                ${isActive 
+                  ? 'bg-amber-600 text-white' 
+                  : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                }
+              `}
+            >
+              <item.icon className="h-5 w-5" />
+              {item.name}
+            </Link>
+          );
+        })}
+
+        <div className="pt-4 mt-4 border-t border-gray-800">
+          {secondaryNavigation.map((item) => {
+            const isActive = pathname === item.href;
             
             return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`
-                    flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-                    ${
-                      isActive
-                        ? 'bg-amber-50 text-amber-900 font-medium'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <span className="text-xl">{item.icon}</span>
-                  <span>{item.label.replace(/^.+ /, '')}</span>
-                </Link>
-              </li>
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`
+                  flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${isActive 
+                    ? 'bg-amber-600 text-white' 
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }
+                `}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.name}
+              </Link>
             );
           })}
-        </ul>
+        </div>
       </nav>
 
-      {/* User Info & Logout */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="mb-3">
-          <p className="text-sm font-medium text-gray-900">
-            {user?.firstName} {user?.lastName}
-          </p>
-          <p className="text-xs text-gray-600">{user?.email}</p>
-          <p className="text-xs text-gray-500 mt-1">
-            Role: <span className="font-medium">{user?.role}</span>
-          </p>
-        </div>
-        <Button
-          onClick={logout}
-          variant="outline"
-          className="w-full"
-          size="sm"
+      {/* Logout */}
+      <div className="border-t border-gray-800 p-4">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
         >
+          <LogOut className="h-5 w-5" />
           Logout
-        </Button>
+        </button>
       </div>
     </div>
   );
