@@ -172,28 +172,6 @@ export default function BatchDetailPage() {
               </CardContent>
             </Card>
           )}
-
-          {batch.tank && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Tank</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Name:</span>
-                  <span className="font-medium">{batch.tank.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Type:</span>
-                  <span className="font-medium">{batch.tank.type}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Capacity:</span>
-                  <span className="font-medium">{batch.tank.capacity}L</span>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         {/* Dates Timeline */}
