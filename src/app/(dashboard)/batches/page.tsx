@@ -130,10 +130,10 @@ export default function BatchesPage() {
               </div>
 
               <div className="space-y-2 text-sm text-gray-600 mb-4">
-                {batch.tank && (
+                {batch.location && (
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">Tank:</span>
-                    <span>{batch.tank.name}</span>
+                    <span className="font-medium">Location:</span>
+                    <span>{batch.location.name}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-2">
