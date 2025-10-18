@@ -301,7 +301,7 @@ export default function BatchDetailPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {fermentationLogs.map((log: FermentationLog) => (
+                            {fermentationLogs.map((log) => (
                         <TableRow key={log.id}>
                           <TableCell>
                             {new Date(log.measuredAt).toLocaleString()}
