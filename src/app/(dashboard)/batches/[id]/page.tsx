@@ -20,6 +20,7 @@ import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { FermentationLog } from '@/types';
 
 export default function BatchDetailPage() {
   const params = useParams();
@@ -250,7 +251,9 @@ export default function BatchDetailPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Fermentation Tracking</h2>
-            <AddFermentationLog batchId={id} onSuccess={refetchLogs} />
+            {(batch.status === 'FERMENTING' || batch.status === 'CONDITIONING') && (
+              <AddFermentationLog batchId={id} onSuccess={refetchLogs} />
+            )}
           </div>
 
           {/* Charts */}
@@ -301,7 +304,7 @@ export default function BatchDetailPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                            {fermentationLogs.map((log) => (
+                      {fermentationLogs.map((log: FermentationLog) => (
                         <TableRow key={log.id}>
                           <TableCell>
                             {new Date(log.measuredAt).toLocaleString()}
