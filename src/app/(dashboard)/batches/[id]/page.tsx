@@ -4,6 +4,7 @@ import { useBatch } from '@/hooks/useBatches';
 import { StatusBadge } from '@/components/batches/StatusBadge';
 import { UpdateBatchDialog } from '@/components/batches/UpdateBatchDialog';
 import { DeleteBatchDialog } from '@/components/batches/DeleteBatchDialog';
+import { FermentationCharts } from '@/components/batches/FermentationCharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
