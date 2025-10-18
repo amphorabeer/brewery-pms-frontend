@@ -20,6 +20,9 @@ import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { AddQcTestDialog } from '@/components/qc/AddQcTestDialog';
+import { QcTestsList } from '@/components/qc/QcTestsList';
+import { QcStatsCard } from '@/components/qc/QcStatsCard';
 import { FermentationLog } from '@/types';
 
 export default function BatchDetailPage() {

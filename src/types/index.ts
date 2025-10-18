@@ -124,3 +124,76 @@ export type TankStatus =
   | 'IN_USE'
   | 'CLEANING'
   | 'MAINTENANCE';
+  // Add these types to src/types/index.ts
+
+export type QcTestResult = 'PASS' | 'FAIL' | 'PENDING';
+
+export interface QcTestType {
+  id: string;
+  orgId: string;
+  name: string;
+  description?: string;
+  category: string;
+  unit?: string;
+  minValue?: number;
+  maxValue?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QcTest {
+  id: string;
+  batchId: string;
+  testTypeId: string;
+  testedBy: string;
+  testedAt: string;
+  result: QcTestResult;
+  value?: number;
+  notes?: string;
+  attachments?: any;
+  createdAt: string;
+  updatedAt: string;
+  testType?: QcTestType;
+  batch?: {
+    id: string;
+    batchNumber: string;
+    recipe: {
+      id: string;
+      name: string;
+    };
+  };
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export interface CreateQcTestTypeData {
+  name: string;
+  description?: string;
+  category: string;
+  unit?: string;
+  minValue?: number;
+  maxValue?: number;
+}
+
+export interface CreateQcTestData {
+  batchId: string;
+  testTypeId: string;
+  testedAt: string;
+  result: QcTestResult;
+  value?: number;
+  notes?: string;
+  attachments?: any;
+}
+
+export interface QcStats {
+  total: number;
+  passed: number;
+  failed: number;
+  pending: number;
+  passRate: string;
+}
