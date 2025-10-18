@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useTanks } from '@/hooks/useTanks';
-import { useLocations } from '@/hooks/useLocations';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,13 +23,11 @@ export default function NewBatchPage() {
   const router = useRouter();
   const { tanks } = useTanks();
   const { data: recipes, isLoading: recipesLoading } = useRecipes();
-  const { data: locations, isLoading: locationsLoading } = useLocations();
   
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     recipeId: '',
-    locationId: '',
-    tankId: '',  // ← დაამატე
+    tankId: '',
     brewDate: new Date().toISOString().split('T')[0],
     expectedVolume: '',
     notes: '',
@@ -44,11 +41,6 @@ export default function NewBatchPage() {
       return;
     }
     
-    if (!formData.locationId) {
-      toast.error('Please select a location');
-      return;
-    }
-    
     if (!formData.expectedVolume) {
       toast.error('Please enter expected volume');
       return;
@@ -59,8 +51,7 @@ export default function NewBatchPage() {
     try {
       const response = await api.post('/batches', {
         recipeId: formData.recipeId,
-        locationId: formData.locationId,
-        tankId: formData.tankId || undefined,  // ← დაამატე
+        tankId: formData.tankId || undefined,
         brewDate: formData.brewDate,
         expectedVolume: parseFloat(formData.expectedVolume),
         notes: formData.notes || undefined,
@@ -75,7 +66,7 @@ export default function NewBatchPage() {
     }
   };
 
-  if (recipesLoading || locationsLoading) {
+  if (recipesLoading) {
     return (
       <div className="p-8">
         <div className="max-w-2xl mx-auto">
@@ -88,7 +79,6 @@ export default function NewBatchPage() {
   return (
     <div className="p-8">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <Link href="/batches">
             <Button variant="ghost" className="mb-2">
@@ -101,7 +91,6 @@ export default function NewBatchPage() {
           </p>
         </div>
 
-        {/* Form Card */}
         <Card>
           <CardHeader>
             <CardTitle>Batch Details</CardTitle>
@@ -159,33 +148,8 @@ export default function NewBatchPage() {
                 </div>
               )}
 
-              {/* Location Selection */}
+              {/* Tank Selection */}
               <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
-                <Select
-                  value={formData.locationId}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, locationId: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations?.map((location) => (
-                      <SelectItem key={location.id} value={location.id}>
-                        {location.name}
-                        {location.address && ` - ${location.address}`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-gray-500">
-                  Where will this batch be brewed?
-                </p>
-              </div>
-{/* Tank Selection */}
-<div className="space-y-2">
                 <Label htmlFor="tank">Tank (Optional)</Label>
                 <Select
                   value={formData.tankId}
@@ -285,20 +249,12 @@ export default function NewBatchPage() {
           </CardContent>
         </Card>
 
-        {/* No Recipes/Locations Warning */}
-        {((recipes && recipes.length === 0) || (locations && locations.length === 0)) && (
+        {/* No Recipes Warning */}
+        {recipes && recipes.length === 0 && (
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-yellow-800">
-              <strong>Missing required data:</strong>
+              <strong>Missing required data:</strong> You need to create at least one recipe.
             </p>
-            <ul className="list-disc list-inside text-yellow-800 mt-2">
-              {recipes && recipes.length === 0 && (
-                <li>You need to create at least one recipe.</li>
-              )}
-              {locations && locations.length === 0 && (
-                <li>You need to create at least one location.</li>
-              )}
-            </ul>
           </div>
         )}
       </div>

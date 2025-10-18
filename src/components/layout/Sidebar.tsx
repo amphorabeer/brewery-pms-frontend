@@ -6,10 +6,6 @@ import {
   LayoutDashboard, 
   FlaskConical, 
   Droplet, 
-  MapPin, 
-  ShoppingCart,
-  Package,
-  Users,
   Settings,
   LogOut,
   Beaker,
@@ -42,7 +38,6 @@ export default function Sidebar() {
 
   return (
     <div className="flex h-full w-64 flex-col bg-gray-900">
-      {/* Logo */}
       <div className="flex h-16 items-center gap-2 px-6 border-b border-gray-800">
         <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
           <span className="text-white font-bold text-lg">🍺</span>
@@ -50,7 +45,6 @@ export default function Sidebar() {
         <span className="text-white font-bold text-lg">Brewery PMS</span>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href || 
@@ -98,7 +92,6 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* Logout */}
       <div className="border-t border-gray-800 p-4">
         <button
           onClick={handleLogout}
