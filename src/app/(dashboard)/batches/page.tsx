@@ -139,12 +139,13 @@ export default function BatchesPage() {
                 <div className="flex items-center gap-2">
                   <span className="font-medium">Brew Date:</span>
                   <span>{new Date(batch.brewDate).toLocaleDateString()}</span>
-                  {batch.actualVolume && (
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">Volume:</span>
-                      <span>{batch.actualVolume}L</span>
-                    </div>
-                  )}
+                </div>
+                {batch.actualVolume && (
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Volume:</span>
+                    <span>{batch.actualVolume}L</span>
+                  </div>
+                )}
               </div>
 
               <Link href={`/batches/${batch.id}`}>
