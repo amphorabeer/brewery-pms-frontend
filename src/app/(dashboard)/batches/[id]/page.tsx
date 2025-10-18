@@ -68,6 +68,7 @@ export default function BatchDetailPage() {
           <div className="flex gap-2">
             <StatusBadge status={batch.status} />
             <UpdateBatchDialog batch={batch} />
+            <DeleteBatchDialog batchId={batch.id} batchNumber={batch.batchNumber} />
           </div>
         </div>
 
