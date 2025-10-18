@@ -87,9 +87,9 @@ export default function BatchesPage() {
           </div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-green-600">Completed</div>
+          <div className="text-sm text-green-600">Finished</div>
           <div className="text-2xl font-bold text-green-600">
-            {batches.filter(b => b.status === 'COMPLETED').length}
+            {batches.filter(b => b.status === 'FINISHED').length}
           </div>
         </Card>
       </div>
