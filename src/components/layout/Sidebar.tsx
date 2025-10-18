@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
-  Flask, 
+  FlaskConical, 
   Droplet, 
   MapPin, 
   ShoppingCart,
@@ -20,7 +20,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Recipes', href: '/recipes', icon: Flask },
+  { name: 'Recipes', href: '/recipes', icon: FlaskConical },
   { name: 'Batches', href: '/batches', icon: Droplet },
   { name: 'Batch Calendar', href: '/batches/calendar', icon: Calendar },
   { name: 'Tanks', href: '/tanks', icon: Layers },
