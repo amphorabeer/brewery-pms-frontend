@@ -23,7 +23,6 @@ import { toast } from 'sonner';
 import { AddQcTestDialog } from '@/components/qc/AddQcTestDialog';
 import { QcTestsList } from '@/components/qc/QcTestsList';
 import { QcStatsCard } from '@/components/qc/QcStatsCard';
-import { FermentationLog } from '@/types';
 
 export default function BatchDetailPage() {
   const params = useParams();
@@ -307,7 +306,7 @@ export default function BatchDetailPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {fermentationLogs.map((log: FermentationLog) => (
+                      {fermentationLogs.map((log) => (
                         <TableRow key={log.id}>
                           <TableCell>
                             {new Date(log.measuredAt).toLocaleString()}
@@ -382,6 +381,17 @@ export default function BatchDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Quality Control Section */}
+        <div className="space-y-6 mt-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Quality Control</h2>
+            <AddQcTestDialog batchId={id} />
+          </div>
+
+          <QcStatsCard batchId={id} />
+          <QcTestsList batchId={id} />
+        </div>
       </div>
     </div>
   );
