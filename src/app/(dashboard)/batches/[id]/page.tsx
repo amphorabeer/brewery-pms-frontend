@@ -22,7 +22,7 @@ import { useParams } from 'next/navigation';
 export default function BatchDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const { data: batch, isLoading, error } = useBatch(id);
+  const { data: batch, isLoading, error, refetch } = useBatch(id);
 
   if (isLoading) {
     return (
@@ -219,10 +219,19 @@ export default function BatchDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Fermentation Charts */}
-        {batch.fermentationLogs && batch.fermentationLogs.length > 0 && (
-          <FermentationCharts logs={batch.fermentationLogs} />
-        )}
+       
+        {/* Fermentation Data Section */}
+        <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">Fermentation Data</h2>
+                    <AddFermentationLog batchId={batch.id} onSuccess={refetch} />
+                  </div>
+
+                  {/* Fermentation Charts */}
+                  {batch.fermentationLogs && batch.fermentationLogs.length > 0 && (
+                    <FermentationCharts logs={batch.fermentationLogs} />
+                  )}
+                </div>
 
         {/* Fermentation Logs Table */}
         {batch.fermentationLogs && batch.fermentationLogs.length > 0 && (
