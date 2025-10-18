@@ -5,6 +5,7 @@ import { StatusBadge } from '@/components/batches/StatusBadge';
 import { UpdateBatchDialog } from '@/components/batches/UpdateBatchDialog';
 import { DeleteBatchDialog } from '@/components/batches/DeleteBatchDialog';
 import { FermentationCharts } from '@/components/batches/FermentationCharts';
+import { AddFermentationLog } from '@/components/batches/AddFermentationLog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -218,9 +219,14 @@ export default function BatchDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Fermentation Logs */}
+        {/* Fermentation Charts */}
         {batch.fermentationLogs && batch.fermentationLogs.length > 0 && (
-          <Card>
+          <FermentationCharts logs={batch.fermentationLogs} />
+        )}
+
+        {/* Fermentation Logs Table */}
+        {batch.fermentationLogs && batch.fermentationLogs.length > 0 && (
+          <Card className="mt-6">
             <CardHeader>
               <CardTitle>
                 Fermentation Logs ({batch.fermentationLogs.length})
