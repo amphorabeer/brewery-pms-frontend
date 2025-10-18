@@ -26,7 +26,7 @@ export default function BatchCalendarPage() {
     return (
       <div className="p-4">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">Error loading batches: {error.message}</p>
+          <p className="text-red-800">Error loading batches: {error.message}</p>
         </div>
       </div>
     );
@@ -81,9 +81,9 @@ export default function BatchCalendarPage() {
           </div>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="text-sm text-green-600 font-medium">Completed</div>
+          <div className="text-sm text-green-600 font-medium">Packaged</div>
           <div className="text-2xl font-bold text-green-900">
-            {batches.filter(b => b.status === 'COMPLETED').length}
+            {batches.filter(b => b.status === 'PACKAGED').length}
           </div>
         </div>
       </div>

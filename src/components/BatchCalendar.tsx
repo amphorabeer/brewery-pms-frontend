@@ -33,7 +33,7 @@ interface Batch {
   tank?: {
     name: string;
   };
-  status: 'PLANNED' | 'BREWING' | 'FERMENTING' | 'CONDITIONING' | 'COMPLETED' | 'CANCELLED';
+  status: 'PLANNED' | 'BREWING' | 'FERMENTING' | 'CONDITIONING' | 'PACKAGED' | 'CANCELLED';
   brewDate: string;
   estimatedCompletionDate?: string;
   actualCompletionDate?: string;
