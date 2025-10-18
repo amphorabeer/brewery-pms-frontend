@@ -12,7 +12,8 @@ const statusColors = {
   BREWING: 'bg-yellow-100 text-yellow-800',
   FERMENTING: 'bg-purple-100 text-purple-800',
   CONDITIONING: 'bg-orange-100 text-orange-800',
-  COMPLETED: 'bg-green-100 text-green-800',
+  PACKAGING: 'bg-teal-100 text-teal-800',
+  FINISHED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800',
 };
 
