@@ -34,7 +34,7 @@ export default function BatchesPage() {
     return (
       <div className="p-4">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">Error: {error}</p>
+          <p className="text-red-800">Error: {error.message}</p>
         </div>
       </div>
     );
