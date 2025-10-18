@@ -124,7 +124,7 @@ export default function BatchesPage() {
                     {batch.recipe?.name || 'Unknown Recipe'}
                   </p>
                 </div>
-                <Badge className={statusColors[batch.status]}>
+                <Badge className={statusColors[batch.status as keyof typeof statusColors]}>
                   {batch.status}
                 </Badge>
               </div>
