@@ -23,7 +23,7 @@ export const useAuth = () => {
   }, []);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('token'); // Changed from 'access_token'
     if (!token) {
       setLoading(false);
       return;
@@ -33,7 +33,8 @@ export const useAuth = () => {
       const response = await api.get('/auth/me');
       setUser(response.data);
     } catch (error) {
-      localStorage.removeItem('access_token');
+      localStorage.removeItem('token'); // Changed from 'access_token'
+      localStorage.removeItem('user');
     } finally {
       setLoading(false);
     }
@@ -43,13 +44,15 @@ export const useAuth = () => {
     const response = await api.post('/auth/login', { email, password });
     const { accessToken, user } = response.data;
     
-    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('token', accessToken); // Changed from 'access_token'
+    localStorage.setItem('user', JSON.stringify(user)); // Also save user
     setUser(user);
     router.push('/dashboard');
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
+    localStorage.removeItem('token'); // Changed from 'access_token'
+    localStorage.removeItem('user');
     setUser(null);
     router.push('/login');
   };
