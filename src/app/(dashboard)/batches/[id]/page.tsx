@@ -61,7 +61,7 @@ export default function BatchDetailPage() {
               {batch.batchNumber}
             </h1>
             <p className="text-gray-600 mt-1">
-              {batch.recipe.name} - {batch.recipe.style}
+              {batch.recipe?.name} - {batch.recipe?.style}
             </p>
           </div>
           <div className="flex gap-2">
@@ -150,26 +150,50 @@ export default function BatchDetailPage() {
             <CardContent className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Name:</span>
-                <span className="font-medium">{batch.recipe.name}</span>
+                <span className="font-medium">{batch.recipe?.name || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Style:</span>
-                <span className="font-medium">{batch.recipe.style}</span>
+                <span className="font-medium">{batch.recipe?.style || 'N/A'}</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Location</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Name:</span>
-                <span className="font-medium">{batch.location.name}</span>
-              </div>
-            </CardContent>
-          </Card>
+          {batch.location && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Location</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Name:</span>
+                  <span className="font-medium">{batch.location.name}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {batch.tank && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Tank</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Name:</span>
+                  <span className="font-medium">{batch.tank.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Type:</span>
+                  <span className="font-medium">{batch.tank.type}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Capacity:</span>
+                  <span className="font-medium">{batch.tank.capacity}L</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Dates Timeline */}
