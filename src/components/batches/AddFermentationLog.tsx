@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
-import api from '@/lib/api';
+import { useAddFermentationLog } from '@/hooks/useBatches';
 
 interface AddFermentationLogProps {
   batchId: string;
@@ -16,7 +16,8 @@ interface AddFermentationLogProps {
 
 export function AddFermentationLog({ batchId, onSuccess }: AddFermentationLogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const addMutation = useAddFermentationLog();
+  
   const [formData, setFormData] = useState({
     measuredAt: new Date().toISOString().slice(0, 16),
     temperature: '',
@@ -34,19 +35,20 @@ export function AddFermentationLog({ batchId, onSuccess }: AddFermentationLogPro
       return;
     }
 
-    setLoading(true);
-
     try {
-      await api.post(`/batches/${batchId}/fermentation-logs`, {
-        measuredAt: new Date(formData.measuredAt).toISOString(),
-        temperature: parseFloat(formData.temperature),
-        gravity: formData.gravity ? parseFloat(formData.gravity) : undefined,
-        ph: formData.ph ? parseFloat(formData.ph) : undefined,
-        pressure: formData.pressure ? parseFloat(formData.pressure) : undefined,
-        notes: formData.notes || undefined,
+      await addMutation.mutateAsync({
+        batchId,
+        data: {
+          measuredAt: new Date(formData.measuredAt).toISOString(),
+          temperature: parseFloat(formData.temperature),
+          gravity: formData.gravity ? parseFloat(formData.gravity) : undefined,
+          ph: formData.ph ? parseFloat(formData.ph) : undefined,
+          pressure: formData.pressure ? parseFloat(formData.pressure) : undefined,
+          notes: formData.notes || undefined,
+        },
       });
 
-      toast.success('Fermentation log added!');
+      toast.success('Fermentation reading added!');
       setOpen(false);
       setFormData({
         measuredAt: new Date().toISOString().slice(0, 16),
@@ -58,9 +60,7 @@ export function AddFermentationLog({ batchId, onSuccess }: AddFermentationLogPro
       });
       onSuccess();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to add log');
-    } finally {
-      setLoading(false);
+      toast.error(error.message || 'Failed to add reading');
     }
   };
 
@@ -156,11 +156,16 @@ export function AddFermentationLog({ batchId, onSuccess }: AddFermentationLogPro
         </div>
 
         <div className="flex gap-2 justify-end">
-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => setOpen(false)}
+            disabled={addMutation.isPending}
+          >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Adding...' : 'Add Reading'}
+          <Button type="submit" disabled={addMutation.isPending}>
+            {addMutation.isPending ? 'Adding...' : 'Add Reading'}
           </Button>
         </div>
       </form>
