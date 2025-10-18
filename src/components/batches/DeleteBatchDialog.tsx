@@ -2,17 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -25,10 +14,15 @@ interface DeleteBatchDialogProps {
 
 export function DeleteBatchDialog({ batchId, batchNumber }: DeleteBatchDialogProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete batch ${batchNumber}?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
     setLoading(true);
 
     try {
@@ -42,32 +36,14 @@ export function DeleteBatchDialog({ batchId, batchNumber }: DeleteBatchDialogPro
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete Batch
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete batch <strong>{batchNumber}</strong> and all associated data.
-            This action cannot be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            disabled={loading}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            {loading ? 'Deleting...' : 'Delete Batch'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <Button 
+      variant="destructive" 
+      size="sm"
+      onClick={handleDelete}
+      disabled={loading}
+    >
+      <Trash2 className="h-4 w-4 mr-2" />
+      {loading ? 'Deleting...' : 'Delete Batch'}
+    </Button>
   );
 }
