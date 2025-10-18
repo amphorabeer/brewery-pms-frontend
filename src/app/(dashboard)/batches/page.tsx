@@ -17,7 +17,7 @@ const statusColors = {
 };
 
 export default function BatchesPage() {
-  const { batches, loading, error } = useBatches();
+  const { data: batches = [], isLoading: loading, error } = useBatches();
 
   if (loading) {
     return (
