@@ -81,9 +81,9 @@ export default function BatchCalendarPage() {
           </div>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="text-sm text-green-600 font-medium">Packaged</div>
+          <div className="text-sm text-green-600 font-medium">Finished</div>
           <div className="text-2xl font-bold text-green-900">
-            {batches.filter(b => b.status === 'PACKAGED').length}
+            {batches.filter(b => b.status === 'FINISHED').length}
           </div>
         </div>
       </div>

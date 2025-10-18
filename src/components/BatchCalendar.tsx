@@ -33,7 +33,7 @@ interface Batch {
   tank?: {
     name: string;
   };
-  status: 'PLANNED' | 'BREWING' | 'FERMENTING' | 'CONDITIONING' | 'PACKAGED' | 'CANCELLED';
+  status: 'PLANNED' | 'BREWING' | 'FERMENTING' | 'CONDITIONING' | 'PACKAGING' | 'FINISHED' | 'CANCELLED';
   brewDate: string;
   estimatedCompletionDate?: string;
   actualCompletionDate?: string;
@@ -59,7 +59,7 @@ const statusColors = {
   BREWING: 'bg-yellow-100 text-yellow-800 border-yellow-300',
   FERMENTING: 'bg-purple-100 text-purple-800 border-purple-300',
   CONDITIONING: 'bg-orange-100 text-orange-800 border-orange-300',
-  COMPLETED: 'bg-green-100 text-green-800 border-green-300',
+  PACKAGED: 'bg-green-100 text-green-800 border-green-300',
   CANCELLED: 'bg-gray-100 text-gray-800 border-gray-300',
 };
 
@@ -68,7 +68,7 @@ const statusEventColors = {
   BREWING: '#eab308',
   FERMENTING: '#a855f7',
   CONDITIONING: '#f97316',
-  COMPLETED: '#22c55e',
+  PACKAGED: '#22c55e',
   CANCELLED: '#6b7280',
 };
 
@@ -155,8 +155,8 @@ export default function BatchCalendar({
           <Badge variant="outline" className={statusColors.CONDITIONING}>
             Conditioning ({batches.filter(b => b.status === 'CONDITIONING').length})
           </Badge>
-          <Badge variant="outline" className={statusColors.COMPLETED}>
-            Completed ({batches.filter(b => b.status === 'COMPLETED').length})
+          <Badge variant="outline" className={statusColors.PACKAGED}>
+            Packaged ({batches.filter(b => b.status === 'PACKAGED').length})
           </Badge>
         </div>
 
@@ -171,7 +171,7 @@ export default function BatchCalendar({
             <option value="BREWING">Brewing</option>
             <option value="FERMENTING">Fermenting</option>
             <option value="CONDITIONING">Conditioning</option>
-            <option value="COMPLETED">Completed</option>
+            <option value="PACKAGED">Packaged</option>
           </select>
 
           {onCreateBatch && (
@@ -228,8 +228,8 @@ export default function BatchCalendar({
             <span>Conditioning - Secondary/aging</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: statusEventColors.COMPLETED }} />
-            <span>Completed - Ready for packaging</span>
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: statusEventColors.PACKAGED }} />
+            <span>Packaged - Ready for distribution</span>
           </div>
         </div>
       </Card>
