@@ -1,6 +1,6 @@
 'use client';
 
-import { useBatch } from '@/hooks/useBatches';
+import { useBatch, useFermentationLogs, useDeleteFermentationLog } from '@/hooks/useBatches';
 import { StatusBadge } from '@/components/batches/StatusBadge';
 import { UpdateBatchDialog } from '@/components/batches/UpdateBatchDialog';
 import { DeleteBatchDialog } from '@/components/batches/DeleteBatchDialog';
@@ -16,13 +16,41 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
+import { FermentationLog } from '@/types';
 
 export default function BatchDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const { data: batch, isLoading, error, refetch } = useBatch(id);
+
+  // Fetch batch data
+  const { data: batch, isLoading, error } = useBatch(id);
+
+  // Fetch fermentation logs
+  const { 
+    data: fermentationLogs = [], 
+    isLoading: logsLoading,
+    refetch: refetchLogs 
+  } = useFermentationLogs(id);
+
+  // Delete mutation
+  const deleteMutation = useDeleteFermentationLog();
+
+  const handleDeleteLog = async (logId: string) => {
+    if (!confirm('Are you sure you want to delete this reading?')) {
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync({ batchId: id, logId });
+      toast.success('Reading deleted successfully');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete reading');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -219,66 +247,124 @@ export default function BatchDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Fermentation Data Section */}
+        {/* Fermentation Section */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Fermentation Data</h2>
-            <AddFermentationLog batchId={batch.id} onSuccess={refetch} />
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Fermentation Tracking</h2>
+            <AddFermentationLog batchId={id} onSuccess={refetchLogs} />
           </div>
 
-          {/* Fermentation Charts */}
-          {batch.fermentationLogs && batch.fermentationLogs.length > 0 ? (
-            <FermentationCharts logs={batch.fermentationLogs} />
+          {/* Charts */}
+          {logsLoading ? (
+            <Card>
+              <CardContent className="py-12">
+                <p className="text-center text-gray-500">Loading charts...</p>
+              </CardContent>
+            </Card>
+          ) : fermentationLogs.length > 0 ? (
+            <FermentationCharts logs={fermentationLogs} />
           ) : (
             <Card>
-              <CardContent className="py-12 text-center text-gray-500">
-                <p className="text-lg font-medium">No fermentation data yet.</p>
-                <p className="text-sm mt-2">Click "Add Reading" above to start tracking fermentation.</p>
+              <CardContent className="py-12">
+                <p className="text-center text-gray-500">
+                  No fermentation data yet. Add your first reading above!
+                </p>
               </CardContent>
             </Card>
           )}
-        </div>
 
-        {/* Fermentation Logs Table */}
-        {batch.fermentationLogs && batch.fermentationLogs.length > 0 && (
-          <Card className="mt-6">
+          {/* Logs Table */}
+          <Card>
             <CardHeader>
               <CardTitle>
-                Fermentation Logs ({batch.fermentationLogs.length})
+                Fermentation Readings ({fermentationLogs.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Temperature</TableHead>
-                    <TableHead>Gravity</TableHead>
-                    <TableHead>pH</TableHead>
-                    <TableHead>Pressure</TableHead>
-                    <TableHead>Notes</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                {fermentationLogs.map((log: FermentationLog) => (
-                    <TableRow key={log.id}>
-                      <TableCell>
-                        {new Date(log.measuredAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>{log.temperature}°C</TableCell>
-                      <TableCell>{log.gravity || '-'}</TableCell>
-                      <TableCell>{log.ph || '-'}</TableCell>
-                      <TableCell>{log.pressure || '-'} PSI</TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        {log.notes || '-'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {logsLoading ? (
+                <p className="text-center py-8 text-gray-500">Loading readings...</p>
+              ) : fermentationLogs.length === 0 ? (
+                <p className="text-center py-8 text-gray-500">
+                  No readings yet. Add your first reading above!
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead>Temperature</TableHead>
+                        <TableHead>Gravity</TableHead>
+                        <TableHead>pH</TableHead>
+                        <TableHead>Pressure</TableHead>
+                        <TableHead>Notes</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {fermentationLogs.map((log: FermentationLog) => (
+                        <TableRow key={log.id}>
+                          <TableCell>
+                            {new Date(log.measuredAt).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <span className="font-medium text-amber-600">
+                              {log.temperature}°C
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {log.gravity ? (
+                              <span className="font-medium text-blue-600">
+                                {typeof log.gravity === 'number' 
+                                  ? log.gravity.toFixed(3) 
+                                  : log.gravity}
+                              </span>
+                            ) : (
+                              '-'
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {log.ph ? (
+                              <span className="font-medium text-green-600">
+                                {typeof log.ph === 'number' 
+                                  ? log.ph.toFixed(1) 
+                                  : log.ph}
+                              </span>
+                            ) : (
+                              '-'
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {log.pressure ? (
+                              <span className="font-medium text-purple-600">
+                                {log.pressure} PSI
+                              </span>
+                            ) : (
+                              '-'
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm text-gray-600 max-w-xs truncate">
+                            {log.notes || '-'}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteLog(log.id)}
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
-        )}
+        </div>
 
         {/* Notes */}
         {batch.notes && (
