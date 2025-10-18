@@ -151,7 +151,7 @@ export default function DashboardPage() {
                       className="text-center p-4 bg-gray-50 rounded-lg"
                     >
                       <StatusBadge status={status as any} />
-                      <p className="text-2xl font-bold mt-2">{count}</p>
+                      <p className="text-2xl font-bold mt-2">{count as number}</p>
                     </div>
                   )
                 )}
