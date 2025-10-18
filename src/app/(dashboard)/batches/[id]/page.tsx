@@ -219,19 +219,25 @@ export default function BatchDetailPage() {
           </CardContent>
         </Card>
 
-       
         {/* Fermentation Data Section */}
         <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">Fermentation Data</h2>
-                    <AddFermentationLog batchId={batch.id} onSuccess={refetch} />
-                  </div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold">Fermentation Data</h2>
+            <AddFermentationLog batchId={batch.id} onSuccess={refetch} />
+          </div>
 
-                  {/* Fermentation Charts */}
-                  {batch.fermentationLogs && batch.fermentationLogs.length > 0 && (
-                    <FermentationCharts logs={batch.fermentationLogs} />
-                  )}
-                </div>
+          {/* Fermentation Charts */}
+          {batch.fermentationLogs && batch.fermentationLogs.length > 0 ? (
+            <FermentationCharts logs={batch.fermentationLogs} />
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center text-gray-500">
+                <p className="text-lg font-medium">No fermentation data yet.</p>
+                <p className="text-sm mt-2">Click "Add Reading" above to start tracking fermentation.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
         {/* Fermentation Logs Table */}
         {batch.fermentationLogs && batch.fermentationLogs.length > 0 && (
