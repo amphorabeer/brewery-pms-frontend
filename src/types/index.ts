@@ -118,15 +118,37 @@ export type TankStatus =
   | 'CLEANING'
   | 'MAINTENANCE';
 
-export interface Tank {
-  id: string;
-  name: string;
-  type: TankType;
-  capacity: number;
-  status: TankStatus;
-  locationId?: string;
-  location?: Location;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+  export interface Batch {
+    id: string;
+    batchNumber: string;
+    status: BatchStatus;
+    brewDate: string;
+    fermentationStartDate?: string;
+    packagedDate?: string;
+    finishedDate?: string;
+    expectedVolume: number;
+    actualVolume?: number;
+    og?: number;
+    fg?: number;
+    abv?: number;
+    notes?: string;
+    recipe: {
+      id: string;
+      name: string;
+      style: string;
+    };
+    location: {
+      id: string;
+      name: string;
+    };
+    tank?: {              // ← დაამატე!
+      id: string;
+      name: string;
+      type: string;
+      capacity: number;
+      status: string;
+    };
+    fermentationLogs?: FermentationLog[];
+    createdAt: string;
+    updatedAt: string;
+  }
