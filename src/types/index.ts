@@ -268,3 +268,36 @@ export interface PackagingStats {
   byType: Record<string, { count: number; volume: number; packages: number }>;
   byStatus: Record<string, number>;
 }
+// Supplier Types
+export interface Supplier {
+  organizationId: string;
+  id: string;
+  orgId: string;
+  name: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  taxId?: string;
+  paymentTerms?: string;
+  notes?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSupplierData {
+  name: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  taxId?: string;
+  paymentTerms?: string;
+  notes?: string;
+  isActive?: boolean;
+}

@@ -1,0 +1,17 @@
+import { Metadata } from 'next';
+import PurchaseOrderDetail from '@/components/purchase-orders/PurchaseOrderDetail';
+
+export const metadata: Metadata = {
+  title: 'Purchase Order Details | Brewery PMS',
+  description: 'View purchase order details',
+};
+
+interface Props {
+  params: {
+    id: string;
+  };
+}
+
+export default function PurchaseOrderDetailPage({ params }: Props) {
+  return <PurchaseOrderDetail orderId={params.id} />;
+}
