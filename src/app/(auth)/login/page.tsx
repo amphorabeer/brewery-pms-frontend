@@ -1,89 +1,82 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: 'newuser@brewery.com',
+    password: 'Password123!',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
-      await login(email, password);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      await login(formData.email, formData.password);
+      toast.success('Login successful!');
+      router.push('/dashboard');
+    } catch (error: any) {
+      toast.error(error.message || 'Login failed');
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            🍺 Brewery PMS
-          </CardTitle>
-          <CardDescription className="text-center">
-            Sign in to your account to continue
-          </CardDescription>
+        <CardHeader>
+          <CardTitle className="text-2xl">Brewery PMS</CardTitle>
+          <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="user@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="your@email.com"
                 required
-                disabled={loading}
               />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Enter your password"
                 required
-                disabled={loading}
               />
             </div>
 
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                {error}
-              </div>
-            )}
-
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Sign In
             </Button>
-          </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Test Account:</p>
-            <p className="font-mono text-xs mt-1">
-              testuser@brewery.com / Test123!@#
+            <p className="text-sm text-gray-500 text-center">
+              Default: newuser@brewery.com / Password123!
             </p>
-          </div>
+          </form>
         </CardContent>
       </Card>
     </div>

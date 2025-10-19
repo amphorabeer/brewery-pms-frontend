@@ -1,85 +1,107 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-const getAuthHeaders = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-  },
-});
+const getAuthHeaders = () => {
+  if (typeof window === 'undefined') return {};
+  
+  const token = localStorage.getItem('access_token');
+  
+  if (!token) {
+    console.error('No access token found in localStorage');
+    return {};
+  }
+  
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
 
 export function useIngredients() {
-  const queryClient = useQueryClient();
-
-  const { data: ingredients, isLoading } = useQuery({
+  return useQuery({
     queryKey: ['ingredients'],
     queryFn: async () => {
-      const { data } = await axios.get(`${API_URL}/ingredients`, getAuthHeaders());
-      return data;
-    },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (newIngredient: any) => {
-      const { data } = await axios.post(
+      const headers = getAuthHeaders();
+      console.log('Fetching ingredients with headers:', headers);
+      
+      const { data } = await axios.get(
         `${API_URL}/ingredients`,
-        newIngredient,
-        getAuthHeaders()
+        headers
       );
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
-    },
   });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await axios.delete(`${API_URL}/ingredients/${id}`, getAuthHeaders());
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
-    },
-  });
-
-  return {
-    ingredients,
-    isLoading,
-    createIngredient: createMutation.mutateAsync,
-    deleteIngredient: deleteMutation.mutateAsync,
-  };
 }
 
 export function useIngredient(id: string) {
-  const queryClient = useQueryClient();
-
-  const { data: ingredient, isLoading } = useQuery({
-    queryKey: ['ingredients', id],
+  return useQuery({
+    queryKey: ['ingredient', id],
     queryFn: async () => {
-      const { data } = await axios.get(`${API_URL}/ingredients/${id}`, getAuthHeaders());
+      const { data } = await axios.get(
+        `${API_URL}/ingredients/${id}`,
+        getAuthHeaders()
+      );
       return data;
     },
+    enabled: !!id,
   });
+}
 
-  const updateMutation = useMutation({
-    mutationFn: async (updatedIngredient: any) => {
+export function useCreateIngredient() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (ingredientData: any) => {
+      const headers = getAuthHeaders();
+      console.log('Creating ingredient with headers:', headers);
+      console.log('Ingredient data:', ingredientData);
+      
+      const { data } = await axios.post(
+        `${API_URL}/ingredients`,
+        ingredientData,
+        headers
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+    },
+  });
+}
+
+export function useUpdateIngredient() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data: ingredientData }: { id: string; data: any }) => {
       const { data } = await axios.patch(
         `${API_URL}/ingredients/${id}`,
-        updatedIngredient,
+        ingredientData,
         getAuthHeaders()
       );
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ingredients'] });
-      queryClient.invalidateQueries({ queryKey: ['ingredients', id] });
     },
   });
+}
 
-  return {
-    ingredient,
-    isLoading,
-    updateIngredient: updateMutation.mutateAsync,
-  };
+export function useDeleteIngredient() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await axios.delete(
+        `${API_URL}/ingredients/${id}`,
+        getAuthHeaders()
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+    },
+  });
 }

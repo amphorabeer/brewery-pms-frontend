@@ -466,3 +466,26 @@ export interface StockLevel {
   lastMovementDate: string | null;
   status: 'CRITICAL' | 'LOW' | 'NORMAL' | 'OVERSTOCKED';
 }
+// ============================================
+// PHASE 2: ADDITIONAL TYPES
+// ============================================
+
+export interface SupplierStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+export enum PurchaseOrderStatus {
+  DRAFT = 'DRAFT',
+  SENT = 'SENT',
+  PARTIALLY_RECEIVED = 'PARTIALLY_RECEIVED',
+  RECEIVED = 'RECEIVED',
+  CANCELLED = 'CANCELLED',
+}
+
+export interface PurchaseOrderStats {
+  total: number;
+  draft: number;
+  sent: number;
+  receive
