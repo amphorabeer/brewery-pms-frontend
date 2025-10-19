@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Search, Trash2, Eye, Plus, Package, CheckCircle } from 'lucide-react';
+import { Search, Trash2, Eye, Plus, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import type { PurchaseOrderStatus } from '@/types';
@@ -54,7 +54,7 @@ export default function PurchaseOrdersList() {
   const deleteOrder = useDeletePurchaseOrder();
   const receiveOrder = useReceivePurchaseOrder();
 
-  const filteredOrders = orders?.filter(order =>
+  const filteredOrders = orders?.filter((order: any) =>
     order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.supplier?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -118,19 +118,19 @@ export default function PurchaseOrdersList() {
         <div className="bg-card p-4 rounded-lg border">
           <div className="text-sm text-muted-foreground">Pending</div>
           <div className="text-2xl font-bold text-yellow-600">
-            {orders?.filter(o => ['SUBMITTED', 'CONFIRMED'].includes(o.status)).length || 0}
+            {orders?.filter((o: any) => ['SUBMITTED', 'CONFIRMED'].includes(o.status)).length || 0}
           </div>
         </div>
         <div className="bg-card p-4 rounded-lg border">
           <div className="text-sm text-muted-foreground">Received</div>
           <div className="text-2xl font-bold text-green-600">
-            {orders?.filter(o => o.status === 'RECEIVED').length || 0}
+            {orders?.filter((o: any) => o.status === 'RECEIVED').length || 0}
           </div>
         </div>
         <div className="bg-card p-4 rounded-lg border">
           <div className="text-sm text-muted-foreground">Total Value</div>
           <div className="text-2xl font-bold">
-            ₾{orders?.reduce((sum, o) => sum + o.totalAmount, 0).toFixed(2) || '0.00'}
+            ₾{orders?.reduce((sum: number, o: any) => sum + o.totalAmount, 0).toFixed(2) || '0.00'}
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function PurchaseOrdersList() {
           </TableHeader>
           <TableBody>
             {filteredOrders && filteredOrders.length > 0 ? (
-              filteredOrders.map((order) => (
+              filteredOrders.map((order: any) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-mono font-medium">
                     {order.orderNumber}
@@ -169,8 +169,8 @@ export default function PurchaseOrdersList() {
                     ₾{order.totalAmount.toFixed(2)}
                   </TableCell>
                   <TableCell>
-                    <Badge className={statusColors[order.status]}>
-                      {statusLabels[order.status]}
+                    <Badge className={statusColors[order.status as PurchaseOrderStatus]}>
+                      {statusLabels[order.status as PurchaseOrderStatus]}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
