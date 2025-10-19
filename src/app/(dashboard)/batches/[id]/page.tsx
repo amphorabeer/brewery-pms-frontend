@@ -23,6 +23,8 @@ import { toast } from 'sonner';
 import { AddQcTestDialog } from '@/components/qc/AddQcTestDialog';
 import { QcTestsList } from '@/components/qc/QcTestsList';
 import { QcStatsCard } from '@/components/qc/QcStatsCard';
+import { AddPackagingDialog } from '@/components/packaging/AddPackagingDialog';
+import { PackagingOperationsList } from '@/components/packaging/PackagingOperationsList';
 
 export default function BatchDetailPage() {
   const params = useParams();
@@ -174,7 +176,21 @@ export default function BatchDetailPage() {
             </CardContent>
           </Card>
         )}
-
+          {/* Packaging Section */}
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle>Packaging</CardTitle>
+                {(batch.status === 'PACKAGING' || batch.status === 'FINISHED') && (
+                  <AddPackagingDialog batchId={batch.id} />
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <PackagingOperationsList batchId={batch.id} />
+            </CardContent>
+          </Card>
+          
         {/* Recipe & Location Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card>

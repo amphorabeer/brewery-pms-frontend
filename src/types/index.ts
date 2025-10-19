@@ -197,3 +197,74 @@ export interface QcStats {
   pending: number;
   passRate: string;
 }
+
+// Packaging Types
+export type PackageType = 'BOTTLE' | 'KEG' | 'CAN' | 'GROWLER' | 'CROWLER';
+export type PackagingStatus = 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
+export interface PackageFormat {
+  id: string;
+  orgId: string;
+  name: string;
+  type: PackageType;
+  size: number;
+  unit: string;
+  description?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PackagingOperation {
+  id: string;
+  batchId: string;
+  packageFormatId: string;
+  sku?: string;
+  quantity: number;
+  volumePackaged: number;
+  packagedBy: string;
+  packagedAt: string;
+  status: PackagingStatus;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  batch?: {
+    batchNumber: string;
+    recipe: {
+      name: string;
+    };
+  };
+  packageFormat?: PackageFormat;
+  user?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export interface CreatePackageFormatData {
+  name: string;
+  type: PackageType;
+  size: number;
+  unit: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+export interface CreatePackagingOperationData {
+  batchId: string;
+  packageFormatId: string;
+  quantity: number;
+  volumePackaged: number;
+  packagedAt: string;
+  status?: PackagingStatus;
+  notes?: string;
+}
+
+export interface PackagingStats {
+  totalOperations: number;
+  totalVolume: number;
+  totalPackages: number;
+  byType: Record<string, { count: number; volume: number; packages: number }>;
+  byStatus: Record<string, number>;
+}
