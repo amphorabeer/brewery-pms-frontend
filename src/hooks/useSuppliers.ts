@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Supplier, CreateSupplierData } from '@/types';
+import { Supplier, CreateSupplierDto } from '@/types';
 
 export const useSuppliers = (activeOnly = true) => {
   return useQuery({
