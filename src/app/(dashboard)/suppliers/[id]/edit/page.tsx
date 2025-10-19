@@ -18,16 +18,18 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
+import { use } from 'react';
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function EditSupplierPage({ params }: Props) {
+  const resolvedParams = use(params);
   const router = useRouter();
-  const { data: supplier, isLoading } = useSupplier(params.id);
+  const { data: supplier, isLoading } = useSupplier(resolvedParams.id);
   const updateSupplier = useUpdateSupplier();
 
   const [formData, setFormData] = useState({
@@ -64,7 +66,7 @@ export default function EditSupplierPage({ params }: Props) {
 
     try {
       await updateSupplier.mutateAsync({
-        id: params.id,
+        id: resolvedParams.id,
         data: {
           name: formData.name,
           contactPerson: formData.contactPerson || undefined,
