@@ -122,7 +122,7 @@ export default function InventoryDashboardWidget() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {lowStock.slice(0, 5).map((item) => (
+            {lowStock.slice(0, 5).map((item: any) => (
                 <div
                   key={item.ingredientId}
                   className="flex items-center justify-between p-3 border rounded-lg"
@@ -172,7 +172,7 @@ export default function InventoryDashboardWidget() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {stats.topSuppliers.slice(0, 5).map((item) => (
+                {stats.topSuppliers.slice(0, 5).map((item: any) => (
                 <div
                   key={item.supplier.id}
                   className="flex items-center justify-between p-3 border rounded-lg"
