@@ -47,7 +47,7 @@ export default function AddStockMovementDialog() {
   });
 
   const createMovement = useCreateStockMovement();
-  const { data: ingredients } = useIngredients();
+  const { ingredients } = useIngredients();
   const { data: locations } = useLocations();
 
   const resetForm = () => {
@@ -125,7 +125,7 @@ export default function AddStockMovementDialog() {
                 <SelectValue placeholder="Select ingredient" />
               </SelectTrigger>
               <SelectContent>
-                {ingredients?.map((ingredient) => (
+                {ingredients?.map((ingredient: any) => (
                   <SelectItem key={ingredient.id} value={ingredient.id}>
                     {ingredient.name} ({ingredient.unit})
                     {ingredient.currentStock !== null && (
@@ -181,7 +181,7 @@ export default function AddStockMovementDialog() {
                 <SelectValue placeholder="Select location (optional)" />
               </SelectTrigger>
               <SelectContent>
-                {locations?.map((location) => (
+                {locations?.map((location: any) => (
                   <SelectItem key={location.id} value={location.id}>
                     {location.name}
                   </SelectItem>

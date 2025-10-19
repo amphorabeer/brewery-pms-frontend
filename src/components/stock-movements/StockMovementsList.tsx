@@ -54,7 +54,7 @@ export default function StockMovementsList() {
 
   const { data: movements, isLoading } = useStockMovements();
 
-  const filteredMovements = movements?.filter(movement => {
+  const filteredMovements = movements?.filter((movement: any) => {
     const matchesSearch =
       movement.ingredient?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       movement.location?.name.toLowerCase().includes(searchTerm.toLowerCase());
