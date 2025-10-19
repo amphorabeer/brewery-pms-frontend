@@ -45,6 +45,7 @@ export default function AddPurchaseOrderForm() {
   const createOrder = useCreatePurchaseOrder();
   const { data: suppliers } = useSuppliers();
   const { ingredients } = useIngredients();
+
   const [formData, setFormData] = useState({
     supplierId: '',
     orderDate: new Date().toISOString().split('T')[0],
@@ -91,7 +92,7 @@ export default function AddPurchaseOrderForm() {
   };
 
   const handleRemoveItem = (tempId: string) => {
-    setItems(items.filter(item => item.tempId !== tempId));
+    setItems(items.filter((item: any) => item.tempId !== tempId));
   };
 
   const calculateTotal = () => {
@@ -170,7 +171,7 @@ export default function AddPurchaseOrderForm() {
                       <SelectValue placeholder="Select supplier" />
                     </SelectTrigger>
                     <SelectContent>
-                    {activeSuppliers.map((supplier: any) => (
+                      {activeSuppliers.map((supplier: any) => (
                         <SelectItem key={supplier.id} value={supplier.id}>
                           {supplier.name}
                         </SelectItem>
@@ -238,7 +239,7 @@ export default function AddPurchaseOrderForm() {
                       <SelectValue placeholder="Select ingredient" />
                     </SelectTrigger>
                     <SelectContent>
-                    {ingredients?.map((ingredient: any) => (
+                      {ingredients?.map((ingredient: any) => (
                         <SelectItem key={ingredient.id} value={ingredient.id}>
                           {ingredient.name} ({ingredient.unit})
                         </SelectItem>
@@ -291,7 +292,7 @@ export default function AddPurchaseOrderForm() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {items.map((item: any) =>
+                      {items.map((item: any) => {
                         const ingredient = ingredients?.find((i: any) => i.id === item.ingredientId);
                         const total = item.quantity * item.unitPrice;
                         return (
