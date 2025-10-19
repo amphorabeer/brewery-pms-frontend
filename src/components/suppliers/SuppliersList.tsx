@@ -26,7 +26,6 @@ import {
 import { Search, Trash2, Edit, Plus, Phone, Mail, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import type { Supplier } from '@/types';
 
 export default function SuppliersList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,7 +34,7 @@ export default function SuppliersList() {
   const { data: suppliers, isLoading } = useSuppliers();
   const deleteSupplier = useDeleteSupplier();
 
-  const filteredSuppliers = suppliers?.filter(supplier =>
+  const filteredSuppliers = suppliers?.filter((supplier: any) =>
     supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     supplier.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     supplier.email?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -91,13 +90,13 @@ export default function SuppliersList() {
         <div className="bg-card p-4 rounded-lg border">
           <div className="text-sm text-muted-foreground">Active Suppliers</div>
           <div className="text-2xl font-bold text-green-600">
-            {suppliers?.filter(s => s.isActive).length || 0}
+            {suppliers?.filter((s: any) => s.isActive).length || 0}
           </div>
         </div>
         <div className="bg-card p-4 rounded-lg border">
           <div className="text-sm text-muted-foreground">Inactive Suppliers</div>
           <div className="text-2xl font-bold text-red-600">
-            {suppliers?.filter(s => !s.isActive).length || 0}
+            {suppliers?.filter((s: any) => !s.isActive).length || 0}
           </div>
         </div>
       </div>
@@ -116,7 +115,7 @@ export default function SuppliersList() {
           </TableHeader>
           <TableBody>
             {filteredSuppliers && filteredSuppliers.length > 0 ? (
-              filteredSuppliers.map((supplier) => (
+              filteredSuppliers.map((supplier: any) => (
                 <TableRow key={supplier.id}>
                   <TableCell className="font-medium">
                     {supplier.name}
