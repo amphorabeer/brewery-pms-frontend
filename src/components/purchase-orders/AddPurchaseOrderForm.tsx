@@ -44,8 +44,7 @@ export default function AddPurchaseOrderForm() {
   const router = useRouter();
   const createOrder = useCreatePurchaseOrder();
   const { data: suppliers } = useSuppliers();
-  const { data: ingredients } = useIngredients();
-
+  const { ingredients } = useIngredients();
   const [formData, setFormData] = useState({
     supplierId: '',
     orderDate: new Date().toISOString().split('T')[0],
