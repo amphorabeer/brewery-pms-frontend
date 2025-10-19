@@ -31,7 +31,7 @@ export const useCreateSupplier = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CreateSupplierData) => {
+    mutationFn: async (data: CreateSupplierDto) => {
       const response = await api.post('/suppliers', data);
       return response.data;
     },
@@ -45,7 +45,7 @@ export const useUpdateSupplier = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<CreateSupplierData> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<CreateSupplierDto> }) => {
       const response = await api.patch(`/suppliers/${id}`, data);
       return response.data;
     },
