@@ -170,7 +170,7 @@ export default function AddPurchaseOrderForm() {
                       <SelectValue placeholder="Select supplier" />
                     </SelectTrigger>
                     <SelectContent>
-                      {activeSuppliers.map((supplier) => (
+                    {activeSuppliers.map((supplier: any) => (
                         <SelectItem key={supplier.id} value={supplier.id}>
                           {supplier.name}
                         </SelectItem>
@@ -238,7 +238,7 @@ export default function AddPurchaseOrderForm() {
                       <SelectValue placeholder="Select ingredient" />
                     </SelectTrigger>
                     <SelectContent>
-                      {ingredients?.map((ingredient) => (
+                    {ingredients?.map((ingredient: any) => (
                         <SelectItem key={ingredient.id} value={ingredient.id}>
                           {ingredient.name} ({ingredient.unit})
                         </SelectItem>
@@ -291,7 +291,7 @@ export default function AddPurchaseOrderForm() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {items.map((item) => {
+                    {items.map((item: any) =>
                         const ingredient = ingredients?.find((i: any) => i.id === item.ingredientId);
                         const total = item.quantity * item.unitPrice;
                         return (
