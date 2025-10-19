@@ -59,7 +59,7 @@ export default function AddPurchaseOrderForm() {
     unitPrice: '',
   });
 
-  const activeSuppliers = suppliers?.filter(s => s.isActive) || [];
+  const activeSuppliers = suppliers?.filter((s: any) => s.isActive) || [];
 
   const handleAddItem = () => {
     if (!newItem.ingredientId || !newItem.quantity || !newItem.unitPrice) {
