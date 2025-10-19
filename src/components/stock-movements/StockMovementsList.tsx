@@ -115,7 +115,7 @@ export default function StockMovementsList() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {(['PURCHASE', 'PRODUCTION_USE', 'ADJUSTMENT', 'TRANSFER', 'WASTE'] as StockMovementType[]).map(
           (type) => {
-            const count = movements?.filter((m) => m.movementType === type).length || 0;
+            const count = movements?.filter((m: any) => m.movementType === type).length || 0;
             return (
               <div key={type} className="bg-card p-4 rounded-lg border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
@@ -145,7 +145,7 @@ export default function StockMovementsList() {
           </TableHeader>
           <TableBody>
             {filteredMovements && filteredMovements.length > 0 ? (
-              filteredMovements.map((movement) => {
+              filteredMovements.map((movement: any) => {
                 const isPositive = ['PURCHASE', 'TRANSFER'].includes(movement.movementType);
                 return (
                   <TableRow key={movement.id}>
@@ -162,8 +162,8 @@ export default function StockMovementsList() {
                       {movement.ingredient?.name || '-'}
                     </TableCell>
                     <TableCell>
-                      <Badge className={movementTypeColors[movement.movementType]}>
-                        {movementTypeLabels[movement.movementType]}
+                      <Badge className={movementTypeColors[movement.movementType as StockMovementType]}>
+                        {movementTypeLabels[movement.movementType as StockMovementType]}
                       </Badge>
                     </TableCell>
                     <TableCell>{movement.location?.name || '-'}</TableCell>
