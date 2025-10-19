@@ -67,7 +67,7 @@ export default function AddPurchaseOrderForm() {
       return;
     }
 
-    const ingredient = ingredients?.find(i => i.id === newItem.ingredientId);
+    const ingredient = ingredients?.find((i: any) => i.id === newItem.ingredientId);
     if (!ingredient) return;
 
     const quantity = parseFloat(newItem.quantity);
@@ -292,7 +292,7 @@ export default function AddPurchaseOrderForm() {
                     </TableHeader>
                     <TableBody>
                       {items.map((item) => {
-                        const ingredient = ingredients?.find(i => i.id === item.ingredientId);
+                        const ingredient = ingredients?.find((i: any) => i.id === item.ingredientId);
                         const total = item.quantity * item.unitPrice;
                         return (
                           <TableRow key={item.tempId}>
