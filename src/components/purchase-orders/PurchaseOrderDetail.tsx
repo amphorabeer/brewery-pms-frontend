@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ArrowLeft, CheckCircle, XCircle, Package, User, Calendar, MapPin, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Package, User, Calendar, MapPin, Phone, Mail } from 'lucide-react';
 import Link from 'next/link';
 import type { PurchaseOrderStatus } from '@/types';
 
@@ -101,8 +101,8 @@ export default function PurchaseOrderDetail({ orderId }: Props) {
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold">Purchase Order</h1>
-            <Badge className={statusColors[order.status]}>
-              {statusLabels[order.status]}
+            <Badge className={statusColors[order.status as PurchaseOrderStatus]}>
+              {statusLabels[order.status as PurchaseOrderStatus]}
             </Badge>
           </div>
           <p className="text-muted-foreground font-mono">{order.orderNumber}</p>
@@ -143,7 +143,7 @@ export default function PurchaseOrderDetail({ orderId }: Props) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {order.items?.map((item) => (
+                  {order.items?.map((item: any) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">
                         {item.ingredient?.name}
