@@ -25,7 +25,7 @@ export default function NewPurchaseOrderPage() {
   const router = useRouter();
   const createOrder = useCreatePurchaseOrder();
   const { data: suppliers } = useSuppliers();
-  const { data: ingredients } = useIngredients();
+  const { ingredients } = useIngredients();
 
   const [formData, setFormData] = useState({
     supplierId: '',

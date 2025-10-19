@@ -28,24 +28,22 @@ import {
 import { toast } from 'sonner';
 import { ArrowLeft, CheckCircle, Package, User, Calendar, MapPin, Phone, Mail } from 'lucide-react';
 import Link from 'next/link';
-import type { PurchaseOrderStatus } from '@/types';
+import { PurchaseOrderStatus } from '@/types';
 
 const statusColors: Record<PurchaseOrderStatus, string> = {
-  DRAFT: 'bg-gray-500',
-  SUBMITTED: 'bg-blue-500',
-  CONFIRMED: 'bg-yellow-500',
-  PARTIALLY_RECEIVED: 'bg-orange-500',
-  RECEIVED: 'bg-green-500',
-  CANCELLED: 'bg-red-500',
+  [PurchaseOrderStatus.DRAFT]: 'bg-gray-500',
+  [PurchaseOrderStatus.SENT]: 'bg-blue-500',
+  [PurchaseOrderStatus.PARTIALLY_RECEIVED]: 'bg-orange-500',
+  [PurchaseOrderStatus.RECEIVED]: 'bg-green-500',
+  [PurchaseOrderStatus.CANCELLED]: 'bg-red-500',
 };
 
 const statusLabels: Record<PurchaseOrderStatus, string> = {
-  DRAFT: 'Draft',
-  SUBMITTED: 'Submitted',
-  CONFIRMED: 'Confirmed',
-  PARTIALLY_RECEIVED: 'Partially Received',
-  RECEIVED: 'Received',
-  CANCELLED: 'Cancelled',
+  [PurchaseOrderStatus.DRAFT]: 'Draft',
+  [PurchaseOrderStatus.SENT]: 'Sent',
+  [PurchaseOrderStatus.PARTIALLY_RECEIVED]: 'Partially Received',
+  [PurchaseOrderStatus.RECEIVED]: 'Received',
+  [PurchaseOrderStatus.CANCELLED]: 'Cancelled',
 };
 
 interface Props {
@@ -108,7 +106,8 @@ export default function PurchaseOrderDetail({ orderId }: Props) {
           <p className="text-muted-foreground font-mono">{order.orderNumber}</p>
         </div>
         <div className="flex items-center gap-2">
-          {order.status === 'CONFIRMED' && (
+          {(order.status === PurchaseOrderStatus.SENT || 
+            order.status === PurchaseOrderStatus.PARTIALLY_RECEIVED) && (
             <Button onClick={handleReceive} disabled={receiveOrder.isPending}>
               <CheckCircle className="h-4 w-4 mr-2" />
               {receiveOrder.isPending ? 'Receiving...' : 'Mark as Received'}
@@ -163,7 +162,7 @@ export default function PurchaseOrderDetail({ orderId }: Props) {
                       Total Amount:
                     </TableCell>
                     <TableCell className="text-right font-bold text-lg">
-                      ₾{order.totalAmount.toFixed(2)}
+                      ₾{order.totalAmount?.toFixed(2) || '0.00'}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -275,18 +274,17 @@ export default function PurchaseOrderDetail({ orderId }: Props) {
                 <Select
                   value={order.status}
                   onValueChange={(value) => handleStatusChange(value as PurchaseOrderStatus)}
-                  disabled={order.status === 'RECEIVED' || order.status === 'CANCELLED'}
+                  disabled={order.status === PurchaseOrderStatus.RECEIVED || order.status === PurchaseOrderStatus.CANCELLED}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Draft</SelectItem>
-                    <SelectItem value="SUBMITTED">Submitted</SelectItem>
-                    <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                    <SelectItem value="PARTIALLY_RECEIVED">Partially Received</SelectItem>
-                    <SelectItem value="RECEIVED">Received</SelectItem>
-                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    <SelectItem value={PurchaseOrderStatus.DRAFT}>Draft</SelectItem>
+                    <SelectItem value={PurchaseOrderStatus.SENT}>Sent</SelectItem>
+                    <SelectItem value={PurchaseOrderStatus.PARTIALLY_RECEIVED}>Partially Received</SelectItem>
+                    <SelectItem value={PurchaseOrderStatus.RECEIVED}>Received</SelectItem>
+                    <SelectItem value={PurchaseOrderStatus.CANCELLED}>Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

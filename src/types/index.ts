@@ -314,6 +314,10 @@ export interface Supplier {
   email: string | null;
   phone: string | null;
   address: string | null;
+  city: string | null;
+  country: string | null;
+  taxId: string | null;
+  paymentTerms: string | null;
   notes: string | null;
   isActive: boolean;
   createdAt: string;
@@ -326,6 +330,10 @@ export interface CreateSupplierDto {
   email?: string;
   phone?: string;
   address?: string;
+  city?: string;
+  country?: string;
+  taxId?: string;
+  paymentTerms?: string;
   notes?: string;
   isActive?: boolean;
 }
@@ -333,13 +341,13 @@ export interface CreateSupplierDto {
 export interface UpdateSupplierDto extends Partial<CreateSupplierDto> {}
 
 // Purchase Orders
-export type PurchaseOrderStatus = 
-  | 'DRAFT' 
-  | 'SUBMITTED' 
-  | 'CONFIRMED' 
-  | 'PARTIALLY_RECEIVED' 
-  | 'RECEIVED' 
-  | 'CANCELLED';
+export enum PurchaseOrderStatus {
+  DRAFT = 'DRAFT',
+  SENT = 'SENT',
+  PARTIALLY_RECEIVED = 'PARTIALLY_RECEIVED',
+  RECEIVED = 'RECEIVED',
+  CANCELLED = 'CANCELLED',
+}
 
 export interface PurchaseOrder {
   id: string;
@@ -370,6 +378,8 @@ export interface PurchaseOrderItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  receivedQty?: number;
+  notes?: string;
 }
 
 export interface CreatePurchaseOrderDto {
@@ -384,6 +394,7 @@ export interface CreatePurchaseOrderItemDto {
   ingredientId: string;
   quantity: number;
   unitPrice: number;
+  notes?: string;
 }
 
 export interface UpdatePurchaseOrderDto {
@@ -396,12 +407,14 @@ export interface UpdatePurchaseOrderDto {
 }
 
 // Stock Movements
-export type StockMovementType = 
-  | 'PURCHASE' 
-  | 'PRODUCTION_USE' 
-  | 'ADJUSTMENT' 
-  | 'TRANSFER' 
-  | 'WASTE';
+export enum StockMovementType {
+  IN = 'IN',
+  OUT = 'OUT',
+  ADJUSTMENT = 'ADJUSTMENT',
+  BREWING = 'BREWING',
+  SPOILAGE = 'SPOILAGE',
+  TRANSFER = 'TRANSFER',
+}
 
 export interface StockMovement {
   id: string;
@@ -418,25 +431,46 @@ export interface StockMovement {
     id: string;
     name: string;
   };
+  batchId?: string | null;
+  batch?: {
+    id: string;
+    batchNumber: string;
+  };
   movementType: StockMovementType;
   quantity: number;
+  unit: string;
   unitCost: number | null;
   referenceId: string | null;
   referenceType: string | null;
+  reason?: string;
+  reference?: string;
   notes: string | null;
+  movedBy: string;
+  movedAt: string;
   createdBy: string;
   createdAt: string;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
 
 export interface CreateStockMovementDto {
   ingredientId: string;
   locationId?: string;
+  batchId?: string;
   movementType: StockMovementType;
   quantity: number;
+  unit: string;
   unitCost?: number;
   referenceId?: string;
   referenceType?: string;
+  reason?: string;
+  reference?: string;
   notes?: string;
+  movedAt?: string;
 }
 
 // Statistics & Reports
@@ -466,9 +500,6 @@ export interface StockLevel {
   lastMovementDate: string | null;
   status: 'CRITICAL' | 'LOW' | 'NORMAL' | 'OVERSTOCKED';
 }
-// ============================================
-// PHASE 2: ADDITIONAL TYPES
-// ============================================
 
 export interface SupplierStats {
   total: number;
@@ -476,16 +507,17 @@ export interface SupplierStats {
   inactive: number;
 }
 
-export enum PurchaseOrderStatus {
-  DRAFT = 'DRAFT',
-  SENT = 'SENT',
-  PARTIALLY_RECEIVED = 'PARTIALLY_RECEIVED',
-  RECEIVED = 'RECEIVED',
-  CANCELLED = 'CANCELLED',
-}
-
 export interface PurchaseOrderStats {
   total: number;
   draft: number;
   sent: number;
-  receive
+  received: number;
+  cancelled: number;
+  totalValue: number;
+}
+
+export interface StockMovementStats {
+  total: number;
+  byType: Record<string, number>;
+  recentMovements: StockMovement[];
+}

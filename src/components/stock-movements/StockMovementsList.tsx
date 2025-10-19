@@ -20,32 +20,35 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Search, Plus, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { Search, Plus, TrendingUp, TrendingDown, AlertCircle, ArrowRightLeft, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import type { StockMovementType } from '@/types';
+import { StockMovementType } from '@/types';
 
 const movementTypeColors: Record<StockMovementType, string> = {
-  PURCHASE: 'bg-green-500',
-  PRODUCTION_USE: 'bg-blue-500',
-  ADJUSTMENT: 'bg-yellow-500',
-  TRANSFER: 'bg-purple-500',
-  WASTE: 'bg-red-500',
+  [StockMovementType.IN]: 'bg-green-500',
+  [StockMovementType.OUT]: 'bg-red-500',
+  [StockMovementType.BREWING]: 'bg-blue-500',
+  [StockMovementType.ADJUSTMENT]: 'bg-yellow-500',
+  [StockMovementType.TRANSFER]: 'bg-purple-500',
+  [StockMovementType.SPOILAGE]: 'bg-orange-500',
 };
 
 const movementTypeLabels: Record<StockMovementType, string> = {
-  PURCHASE: 'Purchase',
-  PRODUCTION_USE: 'Production Use',
-  ADJUSTMENT: 'Adjustment',
-  TRANSFER: 'Transfer',
-  WASTE: 'Waste',
+  [StockMovementType.IN]: 'Stock In',
+  [StockMovementType.OUT]: 'Stock Out',
+  [StockMovementType.BREWING]: 'Brewing',
+  [StockMovementType.ADJUSTMENT]: 'Adjustment',
+  [StockMovementType.TRANSFER]: 'Transfer',
+  [StockMovementType.SPOILAGE]: 'Spoilage',
 };
 
 const movementTypeIcons: Record<StockMovementType, React.ReactNode> = {
-  PURCHASE: <TrendingUp className="h-4 w-4" />,
-  PRODUCTION_USE: <TrendingDown className="h-4 w-4" />,
-  ADJUSTMENT: <AlertCircle className="h-4 w-4" />,
-  TRANSFER: <TrendingUp className="h-4 w-4" />,
-  WASTE: <TrendingDown className="h-4 w-4" />,
+  [StockMovementType.IN]: <TrendingUp className="h-4 w-4" />,
+  [StockMovementType.OUT]: <TrendingDown className="h-4 w-4" />,
+  [StockMovementType.BREWING]: <TrendingDown className="h-4 w-4" />,
+  [StockMovementType.ADJUSTMENT]: <RefreshCw className="h-4 w-4" />,
+  [StockMovementType.TRANSFER]: <ArrowRightLeft className="h-4 w-4" />,
+  [StockMovementType.SPOILAGE]: <AlertCircle className="h-4 w-4" />,
 };
 
 export default function StockMovementsList() {
@@ -95,11 +98,12 @@ export default function StockMovementsList() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Types</SelectItem>
-              <SelectItem value="PURCHASE">Purchase</SelectItem>
-              <SelectItem value="PRODUCTION_USE">Production Use</SelectItem>
-              <SelectItem value="ADJUSTMENT">Adjustment</SelectItem>
-              <SelectItem value="TRANSFER">Transfer</SelectItem>
-              <SelectItem value="WASTE">Waste</SelectItem>
+              <SelectItem value={StockMovementType.IN}>Stock In</SelectItem>
+              <SelectItem value={StockMovementType.OUT}>Stock Out</SelectItem>
+              <SelectItem value={StockMovementType.BREWING}>Brewing</SelectItem>
+              <SelectItem value={StockMovementType.ADJUSTMENT}>Adjustment</SelectItem>
+              <SelectItem value={StockMovementType.TRANSFER}>Transfer</SelectItem>
+              <SelectItem value={StockMovementType.SPOILAGE}>Spoilage</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -112,21 +116,26 @@ export default function StockMovementsList() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        {(['PURCHASE', 'PRODUCTION_USE', 'ADJUSTMENT', 'TRANSFER', 'WASTE'] as StockMovementType[]).map(
-          (type) => {
-            const count = movements?.filter((m: any) => m.movementType === type).length || 0;
-            return (
-              <div key={type} className="bg-card p-4 rounded-lg border">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                  {movementTypeIcons[type]}
-                  <span>{movementTypeLabels[type]}</span>
-                </div>
-                <div className="text-2xl font-bold">{count}</div>
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+        {([
+          StockMovementType.IN,
+          StockMovementType.OUT,
+          StockMovementType.BREWING,
+          StockMovementType.ADJUSTMENT,
+          StockMovementType.TRANSFER,
+          StockMovementType.SPOILAGE,
+        ] as StockMovementType[]).map((type) => {
+          const count = movements?.filter((m: any) => m.movementType === type).length || 0;
+          return (
+            <div key={type} className="bg-card p-4 rounded-lg border">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                {movementTypeIcons[type]}
+                <span>{movementTypeLabels[type]}</span>
               </div>
-            );
-          }
-        )}
+              <div className="text-2xl font-bold">{count}</div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Table */}
@@ -146,7 +155,7 @@ export default function StockMovementsList() {
           <TableBody>
             {filteredMovements && filteredMovements.length > 0 ? (
               filteredMovements.map((movement: any) => {
-                const isPositive = ['PURCHASE', 'TRANSFER'].includes(movement.movementType);
+                const isPositive = movement.movementType === StockMovementType.IN;
                 return (
                   <TableRow key={movement.id}>
                     <TableCell>

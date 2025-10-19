@@ -25,14 +25,15 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
-import type { StockMovementType } from '@/types';
+import { StockMovementType } from '@/types';
 
 const movementTypes: { value: StockMovementType; label: string; description: string }[] = [
-  { value: 'PURCHASE', label: 'Purchase', description: 'Received from supplier' },
-  { value: 'PRODUCTION_USE', label: 'Production Use', description: 'Used in brewing' },
-  { value: 'ADJUSTMENT', label: 'Adjustment', description: 'Inventory correction' },
-  { value: 'TRANSFER', label: 'Transfer', description: 'Moved between locations' },
-  { value: 'WASTE', label: 'Waste', description: 'Spoiled or damaged' },
+  { value: StockMovementType.IN, label: 'Stock In', description: 'Received inventory (purchase, return)' },
+  { value: StockMovementType.OUT, label: 'Stock Out', description: 'Removed from inventory' },
+  { value: StockMovementType.BREWING, label: 'Brewing', description: 'Used in production/brewing' },
+  { value: StockMovementType.ADJUSTMENT, label: 'Adjustment', description: 'Inventory correction' },
+  { value: StockMovementType.TRANSFER, label: 'Transfer', description: 'Moved between locations' },
+  { value: StockMovementType.SPOILAGE, label: 'Spoilage/Waste', description: 'Damaged or expired' },
 ];
 
 export default function AddStockMovementDialog() {
@@ -40,8 +41,9 @@ export default function AddStockMovementDialog() {
   const [formData, setFormData] = useState({
     ingredientId: '',
     locationId: '',
-    movementType: '' as StockMovementType,
+    movementType: '' as StockMovementType | '',
     quantity: '',
+    unit: '',
     unitCost: '',
     notes: '',
   });
@@ -50,12 +52,15 @@ export default function AddStockMovementDialog() {
   const { ingredients } = useIngredients();
   const { data: locations } = useLocations();
 
+  const selectedIngredient = ingredients?.find((i: any) => i.id === formData.ingredientId);
+
   const resetForm = () => {
     setFormData({
       ingredientId: '',
       locationId: '',
-      movementType: '' as StockMovementType,
+      movementType: '' as StockMovementType | '',
       quantity: '',
+      unit: '',
       unitCost: '',
       notes: '',
     });
@@ -79,8 +84,9 @@ export default function AddStockMovementDialog() {
       await createMovement.mutateAsync({
         ingredientId: formData.ingredientId,
         locationId: formData.locationId || undefined,
-        movementType: formData.movementType,
-        quantity,
+        movementType: formData.movementType as StockMovementType,
+        quantity: Math.abs(quantity),
+        unit: formData.unit || selectedIngredient?.unit || 'kg',
         unitCost: formData.unitCost ? parseFloat(formData.unitCost) : undefined,
         notes: formData.notes || undefined,
       });
@@ -117,9 +123,14 @@ export default function AddStockMovementDialog() {
             </Label>
             <Select
               value={formData.ingredientId}
-              onValueChange={(value) =>
-                setFormData({ ...formData, ingredientId: value })
-              }
+              onValueChange={(value) => {
+                const ingredient = ingredients?.find((i: any) => i.id === value);
+                setFormData({ 
+                  ...formData, 
+                  ingredientId: value,
+                  unit: ingredient?.unit || ''
+                });
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select ingredient" />
@@ -128,7 +139,7 @@ export default function AddStockMovementDialog() {
                 {ingredients?.map((ingredient: any) => (
                   <SelectItem key={ingredient.id} value={ingredient.id}>
                     {ingredient.name} ({ingredient.unit})
-                    {ingredient.currentStock !== null && (
+                    {ingredient.currentStock !== null && ingredient.currentStock !== undefined && (
                       <span className="text-muted-foreground ml-2">
                         - Stock: {ingredient.currentStock}
                       </span>
@@ -190,9 +201,9 @@ export default function AddStockMovementDialog() {
             </Select>
           </div>
 
-          {/* Quantity & Unit Cost */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          {/* Quantity & Unit */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-2">
               <Label htmlFor="quantity">
                 Quantity <span className="text-red-500">*</span>
               </Label>
@@ -205,21 +216,33 @@ export default function AddStockMovementDialog() {
                 onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
               />
               <p className="text-xs text-muted-foreground">
-                Use positive (+) for additions, negative (-) for reductions
+                Enter positive value (direction is set by movement type)
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="unitCost">Unit Cost (₾)</Label>
+              <Label htmlFor="unit">Unit</Label>
               <Input
-                id="unitCost"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.unitCost}
-                onChange={(e) => setFormData({ ...formData, unitCost: e.target.value })}
+                id="unit"
+                placeholder="kg"
+                value={formData.unit || selectedIngredient?.unit || ''}
+                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                disabled={!!selectedIngredient}
               />
             </div>
+          </div>
+
+          {/* Unit Cost */}
+          <div className="space-y-2">
+            <Label htmlFor="unitCost">Unit Cost (₾)</Label>
+            <Input
+              id="unitCost"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              value={formData.unitCost}
+              onChange={(e) => setFormData({ ...formData, unitCost: e.target.value })}
+            />
           </div>
 
           {/* Notes */}

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 
 export interface Ingredient {
@@ -109,5 +109,61 @@ export function useIngredient(id: string) {
       return response.data as Ingredient;
     },
     enabled: !!id,
+  });
+}
+
+// Separate hook for creating ingredient
+export function useCreateIngredient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CreateIngredientDto) => {
+      const response = await api.post('/ingredients', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      toast.success('Ingredient created successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to create ingredient');
+    },
+  });
+}
+
+// Separate hook for updating ingredient
+export function useUpdateIngredient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<CreateIngredientDto> }) => {
+      const response = await api.patch(`/ingredients/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      toast.success('Ingredient updated successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update ingredient');
+    },
+  });
+}
+
+// Separate hook for deleting ingredient
+export function useDeleteIngredient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/ingredients/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      toast.success('Ingredient deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete ingredient');
+    },
   });
 }

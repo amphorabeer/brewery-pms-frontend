@@ -28,11 +28,11 @@ const supplierSchema = z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
-  country: z.string().default('Georgia'),
+  country: z.string().optional(),
   taxId: z.string().optional(),
   paymentTerms: z.string().optional(),
   notes: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean().optional(),
 });
 
 type SupplierFormValues = z.infer<typeof supplierSchema>;
@@ -65,7 +65,13 @@ export function SupplierForm({ supplier, onSubmit, isLoading }: SupplierFormProp
 
   const handleSubmit = async (data: SupplierFormValues) => {
     try {
-      await onSubmit(data);
+      // Ensure default values for optional fields
+      const submissionData: CreateSupplierDto = {
+        ...data,
+        country: data.country || 'Georgia',
+        isActive: data.isActive ?? true,
+      };
+      await onSubmit(submissionData);
     } catch (error) {
       // Error handling is done in the page component
     }

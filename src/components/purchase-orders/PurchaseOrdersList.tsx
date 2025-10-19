@@ -26,24 +26,22 @@ import {
 import { Search, Trash2, Eye, Plus, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import type { PurchaseOrderStatus } from '@/types';
+import { PurchaseOrderStatus } from '@/types';
 
 const statusColors: Record<PurchaseOrderStatus, string> = {
-  DRAFT: 'bg-gray-500',
-  SUBMITTED: 'bg-blue-500',
-  CONFIRMED: 'bg-yellow-500',
-  PARTIALLY_RECEIVED: 'bg-orange-500',
-  RECEIVED: 'bg-green-500',
-  CANCELLED: 'bg-red-500',
+  [PurchaseOrderStatus.DRAFT]: 'bg-gray-500',
+  [PurchaseOrderStatus.SENT]: 'bg-blue-500',
+  [PurchaseOrderStatus.PARTIALLY_RECEIVED]: 'bg-orange-500',
+  [PurchaseOrderStatus.RECEIVED]: 'bg-green-500',
+  [PurchaseOrderStatus.CANCELLED]: 'bg-red-500',
 };
 
 const statusLabels: Record<PurchaseOrderStatus, string> = {
-  DRAFT: 'Draft',
-  SUBMITTED: 'Submitted',
-  CONFIRMED: 'Confirmed',
-  PARTIALLY_RECEIVED: 'Partially Received',
-  RECEIVED: 'Received',
-  CANCELLED: 'Cancelled',
+  [PurchaseOrderStatus.DRAFT]: 'Draft',
+  [PurchaseOrderStatus.SENT]: 'Sent',
+  [PurchaseOrderStatus.PARTIALLY_RECEIVED]: 'Partially Received',
+  [PurchaseOrderStatus.RECEIVED]: 'Received',
+  [PurchaseOrderStatus.CANCELLED]: 'Cancelled',
 };
 
 export default function PurchaseOrdersList() {
@@ -118,19 +116,22 @@ export default function PurchaseOrdersList() {
         <div className="bg-card p-4 rounded-lg border">
           <div className="text-sm text-muted-foreground">Pending</div>
           <div className="text-2xl font-bold text-yellow-600">
-            {orders?.filter((o: any) => ['SUBMITTED', 'CONFIRMED'].includes(o.status)).length || 0}
+            {orders?.filter((o: any) => 
+              o.status === PurchaseOrderStatus.SENT || 
+              o.status === PurchaseOrderStatus.PARTIALLY_RECEIVED
+            ).length || 0}
           </div>
         </div>
         <div className="bg-card p-4 rounded-lg border">
           <div className="text-sm text-muted-foreground">Received</div>
           <div className="text-2xl font-bold text-green-600">
-            {orders?.filter((o: any) => o.status === 'RECEIVED').length || 0}
+            {orders?.filter((o: any) => o.status === PurchaseOrderStatus.RECEIVED).length || 0}
           </div>
         </div>
         <div className="bg-card p-4 rounded-lg border">
           <div className="text-sm text-muted-foreground">Total Value</div>
           <div className="text-2xl font-bold">
-            ₾{orders?.reduce((sum: number, o: any) => sum + o.totalAmount, 0).toFixed(2) || '0.00'}
+            ₾{orders?.reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0).toFixed(2) || '0.00'}
           </div>
         </div>
       </div>
@@ -166,7 +167,7 @@ export default function PurchaseOrdersList() {
                       : '-'}
                   </TableCell>
                   <TableCell className="font-medium">
-                    ₾{order.totalAmount.toFixed(2)}
+                    ₾{order.totalAmount?.toFixed(2) || '0.00'}
                   </TableCell>
                   <TableCell>
                     <Badge className={statusColors[order.status as PurchaseOrderStatus]}>
@@ -180,7 +181,8 @@ export default function PurchaseOrdersList() {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
-                      {order.status === 'CONFIRMED' && (
+                      {(order.status === PurchaseOrderStatus.SENT || 
+                        order.status === PurchaseOrderStatus.PARTIALLY_RECEIVED) && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -190,7 +192,7 @@ export default function PurchaseOrdersList() {
                           <CheckCircle className="h-4 w-4 text-green-600" />
                         </Button>
                       )}
-                      {order.status === 'DRAFT' && (
+                      {order.status === PurchaseOrderStatus.DRAFT && (
                         <Button
                           variant="ghost"
                           size="sm"
