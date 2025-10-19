@@ -1,107 +1,113 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-const getAuthHeaders = () => {
-  if (typeof window === 'undefined') return {};
-  
-  const token = localStorage.getItem('access_token');
-  
-  if (!token) {
-    console.error('No access token found in localStorage');
-    return {};
-  }
-  
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
-
-export function useIngredients() {
-  return useQuery({
-    queryKey: ['ingredients'],
-    queryFn: async () => {
-      const headers = getAuthHeaders();
-      console.log('Fetching ingredients with headers:', headers);
-      
-      const { data } = await axios.get(
-        `${API_URL}/ingredients`,
-        headers
-      );
-      return data;
-    },
-  });
+export interface Ingredient {
+  id: string;
+  orgId: string;
+  name: string;
+  type: string;
+  supplier?: string;
+  costPerUnit?: number;
+  unit: string;
+  stock?: number;
+  notes?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
+export interface CreateIngredientDto {
+  name: string;
+  type: string;
+  supplier?: string;
+  costPerUnit?: number;
+  unit: string;
+  stock?: number;
+  notes?: string;
+  isActive?: boolean;
+}
+
+export function useIngredients(search?: string) {
+  const queryClient = useQueryClient();
+
+  // Fetch all ingredients
+  const query = useQuery({
+    queryKey: ['ingredients', search],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      const response = await api.get(`/ingredients?${params.toString()}`);
+      return response.data as Ingredient[];
+    },
+  });
+
+  // Create ingredient mutation
+  const createMutation = useMutation({
+    mutationFn: async (data: CreateIngredientDto) => {
+      const response = await api.post('/ingredients', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      toast.success('Ingredient created successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to create ingredient');
+    },
+  });
+
+  // Update ingredient mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<CreateIngredientDto> }) => {
+      const response = await api.patch(`/ingredients/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      toast.success('Ingredient updated successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update ingredient');
+    },
+  });
+
+  // Delete ingredient mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/ingredients/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      toast.success('Ingredient deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete ingredient');
+    },
+  });
+
+  return {
+    ingredients: query.data || [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    createIngredient: createMutation.mutate,
+    updateIngredient: updateMutation.mutate,
+    deleteIngredient: deleteMutation.mutate,
+    isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    isDeleting: deleteMutation.isPending,
+  };
+}
+
+// Hook for single ingredient
 export function useIngredient(id: string) {
   return useQuery({
     queryKey: ['ingredient', id],
     queryFn: async () => {
-      const { data } = await axios.get(
-        `${API_URL}/ingredients/${id}`,
-        getAuthHeaders()
-      );
-      return data;
+      const response = await api.get(`/ingredients/${id}`);
+      return response.data as Ingredient;
     },
     enabled: !!id,
-  });
-}
-
-export function useCreateIngredient() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (ingredientData: any) => {
-      const headers = getAuthHeaders();
-      console.log('Creating ingredient with headers:', headers);
-      console.log('Ingredient data:', ingredientData);
-      
-      const { data } = await axios.post(
-        `${API_URL}/ingredients`,
-        ingredientData,
-        headers
-      );
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
-    },
-  });
-}
-
-export function useUpdateIngredient() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({ id, data: ingredientData }: { id: string; data: any }) => {
-      const { data } = await axios.patch(
-        `${API_URL}/ingredients/${id}`,
-        ingredientData,
-        getAuthHeaders()
-      );
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
-    },
-  });
-}
-
-export function useDeleteIngredient() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (id: string) => {
-      await axios.delete(
-        `${API_URL}/ingredients/${id}`,
-        getAuthHeaders()
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ingredients'] });
-    },
   });
 }
